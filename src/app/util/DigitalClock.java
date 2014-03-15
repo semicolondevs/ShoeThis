@@ -1,6 +1,7 @@
 package app.util;
 
 import javax.swing.JLabel;
+
 import java.text.SimpleDateFormat;
 
 
@@ -32,7 +33,8 @@ public class DigitalClock {
 		try{
 			while(true){
 				lblClock.setText(new SimpleDateFormat("hh:mm:ss a").format(new java.util.Date()));
-				Thread.currentThread().sleep(1000);
+				Thread.currentThread();
+				Thread.sleep(1000);
 			}
 		}
 		catch (Exception e){
@@ -44,7 +46,8 @@ public class DigitalClock {
 		try{
 			while(true){
 				lblClock.setText(new SimpleDateFormat("hh:mm:ss a").format(new java.util.Date()));
-				Thread.currentThread().sleep(1000);
+				Thread.currentThread();
+				Thread.sleep(1000);
 			}
 		}
 		catch (Exception e){

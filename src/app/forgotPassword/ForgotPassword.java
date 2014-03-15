@@ -3,7 +3,6 @@ package app.forgotPassword;
 import java.awt.BorderLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import java.awt.Color;
 
@@ -40,8 +39,10 @@ public class ForgotPassword extends JDialog {
 
 	public ForgotPassword() {
 		addWindowFocusListener(new WindowFocusListener() {
+			@Override
 			public void windowGainedFocus(WindowEvent e) {
 			}
+			@Override
 			public void windowLostFocus(WindowEvent e) {
 				dispose();
 			}
@@ -76,6 +77,7 @@ public class ForgotPassword extends JDialog {
 		
 		JButton button_2 = new JButton("OK");
 		button_2.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				pnlPromt.setVisible(false);
 				button.setVisible(true);
@@ -109,6 +111,7 @@ public class ForgotPassword extends JDialog {
 		
 		JButton button_1 = new JButton("OK");
 		button_1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				dispose();
 			}

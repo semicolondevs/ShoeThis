@@ -26,7 +26,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import javax.swing.ImageIcon;
 
@@ -56,8 +55,10 @@ public class EditItem extends JDialog {
 
 	public EditItem(final Inventory i) {
 		addWindowFocusListener(new WindowFocusListener() {
+			@Override
 			public void windowGainedFocus(WindowEvent e) {
 			}
+			@Override
 			public void windowLostFocus(WindowEvent e) {
 				dispose();
 			}
@@ -104,6 +105,7 @@ public class EditItem extends JDialog {
 		
 		JButton btnOk = new JButton("OK");
 		btnOk.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				dispose();
 			}

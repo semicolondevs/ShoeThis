@@ -8,8 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -58,8 +56,10 @@ public class AddItem extends JDialog {
 
 	public AddItem(final Inventory i) {
 		addWindowFocusListener(new WindowFocusListener() {
+			@Override
 			public void windowGainedFocus(WindowEvent arg0) {
 			}
+			@Override
 			public void windowLostFocus(WindowEvent arg0) {
 				dispose();
 			}
@@ -93,6 +93,7 @@ public class AddItem extends JDialog {
 
 		JButton button_1 = new JButton("Ok");
 		button_1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				Specify.setVisible(false);
 				txtPrice.setEnabled(true);
@@ -150,6 +151,7 @@ public class AddItem extends JDialog {
 
 		JButton btnOkExit = new JButton("Yes");
 		btnOkExit.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				dispose();
 			}
@@ -163,6 +165,7 @@ public class AddItem extends JDialog {
 
 		JButton btnNo = new JButton("No");
 		btnNo.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				ExitAddItem.setVisible(false);
 				txtPrice.setEnabled(true);
@@ -202,6 +205,7 @@ public class AddItem extends JDialog {
 
 		JButton btnOKSuccess = new JButton("OK");
 		btnOKSuccess.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				SuccessAdd.setVisible(false);
 				btnSave.setEnabled(true);
@@ -321,6 +325,7 @@ public class AddItem extends JDialog {
 
 		JButton btnOk = new JButton("Ok");
 		btnOk.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				Unable.setVisible(false);
 				btnSave.setEnabled(true);

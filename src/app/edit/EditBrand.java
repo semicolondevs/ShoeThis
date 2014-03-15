@@ -3,7 +3,6 @@ package app.edit;
 import java.awt.BorderLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import app.add.AddBrand;
 import app.db.DatabaseManager;
@@ -27,9 +26,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.awt.event.WindowFocusListener;
 
 public class EditBrand extends JDialog {
@@ -41,8 +38,10 @@ public class EditBrand extends JDialog {
 
 	public EditBrand(final Brands b) {
 		addWindowFocusListener(new WindowFocusListener() {
+			@Override
 			public void windowGainedFocus(WindowEvent arg0) {
 			}
+			@Override
 			public void windowLostFocus(WindowEvent arg0) {
 				dispose();
 			}
@@ -80,6 +79,7 @@ public class EditBrand extends JDialog {
 		
 		JButton button = new JButton("OK");
 		button.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				dispose();
 			}
@@ -139,9 +139,7 @@ public class EditBrand extends JDialog {
 		btnCloseEditBrand.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(JOptionPane.showConfirmDialog(contentPanel, "Are you sure you want to close ?","PROMPT",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)==0){
-					dispose();
-				}
+				dispose();
 			}
 		});
 		btnCloseEditBrand.setForeground(Color.WHITE);
@@ -172,17 +170,12 @@ public class EditBrand extends JDialog {
 				try {
 					int rs = dm.updateBrand(tc.getConnection(), b);
 					if(rs==1){
-						if(txtBrandName.getText().equals("")){
-							JOptionPane.showMessageDialog(contentPanel, "Specify Field !");
-						}else{
-							
+						
 								pnlSuccessEdit.setVisible(true);
 								AddBrand ab = new AddBrand(null);
 								ab.setFocusable(true);
-								
-							
 						}
-					}
+				
 				} catch (ClassNotFoundException | SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

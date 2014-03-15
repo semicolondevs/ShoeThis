@@ -13,7 +13,6 @@ import java.awt.Font;
 
 import javax.swing.JLabel;
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
@@ -112,6 +111,7 @@ public class LoginWindow {
 
 		JButton button_1 = new JButton("Ok");
 		button_1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				pnlInvalidAccount.setVisible(false);
 				txtPassword.setEnabled(true);
@@ -134,6 +134,7 @@ public class LoginWindow {
 
 		JButton button = new JButton("Ok");
 		button.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				UserWindow su = new UserWindow();
 				su.frmUserWindow.setVisible(true);
@@ -170,6 +171,7 @@ public class LoginWindow {
 
 		JButton btnOk = new JButton("Ok");
 		btnOk.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				pnlSpecify.setVisible(false);
 				txtPassword.setEnabled(true);
@@ -300,6 +302,7 @@ public class LoginWindow {
 
 		JButton btnYes = new JButton("Yes");
 		btnYes.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
 			}
@@ -313,6 +316,7 @@ public class LoginWindow {
 
 		JButton btnNo = new JButton("No");
 		btnNo.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				pnlExit.setVisible(false);
 				txtUsername.setEnabled(true);

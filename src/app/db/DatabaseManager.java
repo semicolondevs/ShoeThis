@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import app.model.Brands;
-import app.model.Color;
+import app.model.Colors;
 import app.model.DeleteLogs;
 import app.model.Inventory;
 import app.model.Delivery;
@@ -70,7 +70,7 @@ public class DatabaseManager {
 		int rs = st.executeUpdate(query);		
 		return rs;
 	}
-	public int insertColor(Connection conn,Color c) throws SQLException, ClassNotFoundException {
+	public int insertColor(Connection conn,Colors c) throws SQLException, ClassNotFoundException {
 		String query ="INSERT INTO color (colorId,color) VALUES('"+c.getColorId()+"','"+c.getColor()+"')";
 		Statement st = conn.createStatement();
 		int rs = st.executeUpdate(query);		
@@ -129,6 +129,12 @@ public class DatabaseManager {
 		int rs = st.executeUpdate(query);		
 		return rs;
 	}
+	public int deleteColor(Connection conn,String id) throws SQLException, ClassNotFoundException{
+		String query ="DELETE FROM color WHERE colorId ='"+id+"'";
+		Statement st = conn.createStatement();
+		int rs = st.executeUpdate(query);		
+		return rs;
+	}
 	
 	public int retrieve(Connection conn,String code) throws SQLException, ClassNotFoundException{
 		String query ="DELETE FROM delete_logs WHERE ItemCode ='"+code+"'";
@@ -159,6 +165,12 @@ public class DatabaseManager {
 	
 	public int updateBrand(Connection conn, Brands b) throws SQLException, ClassNotFoundException {
 		String query = "UPDATE brands SET brandName ='"+b.getBrandName()+"'  WHERE brandId ='"+b.getBrandId()+"'";    
+		Statement st = conn.createStatement();  
+		int rs = st.executeUpdate(query);  
+		return rs; 
+	}
+	public int updateColor(Connection conn, Colors c) throws SQLException, ClassNotFoundException {
+		String query = "UPDATE color SET color ='"+c.getColor()+"'  WHERE colorId ='"+c.getColorId()+"'";    
 		Statement st = conn.createStatement();  
 		int rs = st.executeUpdate(query);  
 		return rs; 

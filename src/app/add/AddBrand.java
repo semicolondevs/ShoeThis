@@ -49,9 +49,11 @@ public class AddBrand extends JDialog {
 	
 	public AddBrand(final Brands b) {
 		addWindowFocusListener(new WindowFocusListener() {
+			@Override
 			public void windowGainedFocus(WindowEvent arg0) {
 				updateBrandTable();
 			}
+			@Override
 			public void windowLostFocus(WindowEvent arg0) {
 				dispose();
 			}
@@ -100,6 +102,7 @@ public class AddBrand extends JDialog {
 		
 		JButton button = new JButton("OK");
 		button.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				pnlSuccessDelete.setVisible(false);
 			}
@@ -125,6 +128,7 @@ public class AddBrand extends JDialog {
 		
 		JButton btnYesDelete = new JButton("Yes");
 		btnYesDelete.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				TestConnection tc = new TestConnection();
 				DatabaseManager dm = new DatabaseManager();
@@ -164,6 +168,7 @@ public class AddBrand extends JDialog {
 		
 		JButton btnNoDelete = new JButton("No");
 		btnNoDelete.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				pnlDelete.setVisible(false);
 			}
@@ -189,6 +194,7 @@ public class AddBrand extends JDialog {
 		
 		JButton btnOkEdit = new JButton("OK");
 		btnOkEdit.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				pnlSelect.setVisible(false);
 				txtBrand.setEnabled(true);
@@ -219,6 +225,7 @@ public class AddBrand extends JDialog {
 		
 		JButton btnYesExit = new JButton("Yes");
 		btnYesExit.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				dispose();
 			}
@@ -232,6 +239,7 @@ public class AddBrand extends JDialog {
 		
 		JButton btnExitNo = new JButton("No");
 		btnExitNo.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				pnlExit.setVisible(false);
 				txtBrand.setEnabled(true);
@@ -261,6 +269,7 @@ public class AddBrand extends JDialog {
 		
 		JButton btnSuccesOk = new JButton("OK");
 		btnSuccesOk.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				pnlSuccessAdd.setVisible(false);
 				txtBrand.setEnabled(true);
@@ -387,6 +396,7 @@ public class AddBrand extends JDialog {
 			boolean[] columnEditables = new boolean[] {
 				false, false
 			};
+			@Override
 			public boolean isCellEditable(int row, int column) {
 				return columnEditables[column];
 			}
@@ -503,4 +513,5 @@ public class AddBrand extends JDialog {
 		
 		return exists;
 	}
+	
 }

@@ -45,8 +45,10 @@ public class ChangePassword extends JDialog {
 	
 	public ChangePassword() {
 		addWindowFocusListener(new WindowFocusListener() {
+			@Override
 			public void windowGainedFocus(WindowEvent e) {
 			}
+			@Override
 			public void windowLostFocus(WindowEvent e) {
 				dispose();
 			}
@@ -70,6 +72,7 @@ public class ChangePassword extends JDialog {
 		
 		JButton button_1 = new JButton("Ok");
 		button_1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				pnlPrompt.setVisible(false);
 				txtUsername.setEnabled(true);

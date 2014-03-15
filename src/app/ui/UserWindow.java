@@ -1,39 +1,43 @@
 package app.ui;
 
-import java.awt.EventQueue;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Frame;
-import java.awt.Panel;
-import java.awt.Point;
+import java.awt.SystemColor;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.WindowConstants;
-
-import java.awt.Color;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
-
-import javax.swing.border.LineBorder;
-import javax.swing.JTable;
-import javax.swing.JScrollPane;
-
-import java.awt.Font;
-
-import javax.swing.table.DefaultTableModel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-
-import java.awt.SystemColor;
-
 import javax.swing.JComboBox;
-import javax.swing.DefaultComboBoxModel;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
+import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableModel;
 
 import app.add.AddBrand;
+import app.add.AddColor;
 import app.add.AddItem;
 import app.changePassword.ChangePassword;
 import app.db.DatabaseManager;
@@ -44,29 +48,6 @@ import app.model.Delivery;
 import app.model.Inventory;
 import app.model.Sales;
 import app.util.DigitalClock;
-
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseMotionAdapter;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
-
-import javax.swing.ListSelectionModel;
-
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-
-import javax.swing.JTabbedPane;
-import javax.swing.JSplitPane;
-import javax.swing.JLayeredPane;
-import javax.swing.JDesktopPane;
-import javax.swing.JMenuBar;
 
 
 public class UserWindow {
@@ -101,6 +82,7 @@ public class UserWindow {
 	private JTable tblSalesReport;
 	private JTextField txtQuantitySale;
 	private JTextField txtSearchSaleItem;
+	private JTextField txtPrompt;
 
 	public UserWindow() {
 		initialize();
@@ -113,12 +95,14 @@ public class UserWindow {
 	private void initialize() {
 		frmUserWindow = new JFrame();
 		frmUserWindow.addWindowFocusListener(new WindowFocusListener() {
+			@Override
 			public void windowGainedFocus(WindowEvent arg0) {
 				updateItemTable();
 				updateDeleteLogsTable();
 				updateDeliverTable();
 				updateSalesReportTable();
 			}
+			@Override
 			public void windowLostFocus(WindowEvent arg0) {
 			}
 		});
@@ -135,45 +119,151 @@ public class UserWindow {
 		frmUserWindow.setBounds(0, 0, 1366, 768);
 		frmUserWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmUserWindow.getContentPane().setLayout(null);
-
-		JButton btnExitSystem = new JButton("X");
-		btnExitSystem.addActionListener(new ActionListener() {
+		
+		final JPanel pnlPrompt = new JPanel();
+		pnlPrompt.setVisible(false);
+		
+		final JPanel pnlExit = new JPanel();
+		pnlExit.setVisible(false);
+		pnlExit.setBackground(new Color(255, 255, 255));
+		pnlExit.setBorder(new LineBorder(new Color(51, 153, 255), 3));
+		pnlExit.setBounds(1087, 22, 279, 40);
+		frmUserWindow.getContentPane().add(pnlExit);
+		pnlExit.setLayout(null);
+		
+		JLabel lblExit = new JLabel("Exit ?");
+		lblExit.setForeground(SystemColor.textHighlight);
+		lblExit.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		lblExit.setBounds(23, 10, 89, 23);
+		pnlExit.add(lblExit);
+		
+		JButton button_4 = new JButton("Yes");
+		button_4.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(JOptionPane.showConfirmDialog(frmUserWindow, "Are you sure you want to exit ?","PROMPT",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)==0){
-					System.exit(0);
-				}
+				System.exit(0);
 			}
 		});
-		btnExitSystem.setBounds(1329, 0, 37, 22);
-		frmUserWindow.getContentPane().add(btnExitSystem);
-		btnExitSystem.setForeground(Color.WHITE);
-		btnExitSystem.setFont(new Font("SansSerif", Font.BOLD, 11));
-		btnExitSystem.setBorder(null);
-		btnExitSystem.setBackground(new Color(0, 153, 255));
-
-		JButton btnMinimizeSystem = new JButton("_");
-		btnMinimizeSystem.addActionListener(new ActionListener() {
+		button_4.setForeground(Color.WHITE);
+		button_4.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		button_4.setBorder(null);
+		button_4.setBackground(new Color(51, 102, 255));
+		button_4.setBounds(90, 11, 81, 23);
+		pnlExit.add(button_4);
+		
+		JButton button_5 = new JButton("No");
+		button_5.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
-				frmUserWindow.setState(Frame.ICONIFIED);
+				pnlExit.setVisible(false);
 			}
 		});
-		btnMinimizeSystem.setForeground(Color.WHITE);
-		btnMinimizeSystem.setFont(new Font("SansSerif", Font.BOLD, 11));
-		btnMinimizeSystem.setBorder(null);
-		btnMinimizeSystem.setBackground(new Color(0, 51, 255));
-		btnMinimizeSystem.setBounds(1291, 0, 37, 22);
-		frmUserWindow.getContentPane().add(btnMinimizeSystem);
-
-		JLabel lblShoeThisInventory = new JLabel("Shoe This Inventory Management System");
-		lblShoeThisInventory.setBounds(10, 0, 463, 23);
-		frmUserWindow.getContentPane().add(lblShoeThisInventory);
-		lblShoeThisInventory.setForeground(Color.WHITE);
-		lblShoeThisInventory.setFont(new Font("SansSerif", Font.PLAIN, 15));
-
-		JLabel tittlebar = new JLabel("");
-		tittlebar.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/title.png")));
-		tittlebar.setBounds(0, 0, 1366, 22);
-		frmUserWindow.getContentPane().add(tittlebar);
+		button_5.setForeground(Color.WHITE);
+		button_5.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		button_5.setBorder(null);
+		button_5.setBackground(new Color(51, 102, 255));
+		button_5.setBounds(181, 11, 81, 23);
+		pnlExit.add(button_5);
+		
+				JButton btnExitSystem = new JButton("X");
+				btnExitSystem.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						pnlExit.setVisible(true);
+					}
+				});
+				btnExitSystem.setBounds(1329, 0, 37, 22);
+				frmUserWindow.getContentPane().add(btnExitSystem);
+				btnExitSystem.setForeground(Color.WHITE);
+				btnExitSystem.setFont(new Font("SansSerif", Font.BOLD, 11));
+				btnExitSystem.setBorder(null);
+				btnExitSystem.setBackground(new Color(0, 153, 255));
+		
+				JButton btnMinimizeSystem = new JButton("_");
+				btnMinimizeSystem.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						frmUserWindow.setState(Frame.ICONIFIED);
+					}
+				});
+				btnMinimizeSystem.setForeground(Color.WHITE);
+				btnMinimizeSystem.setFont(new Font("SansSerif", Font.BOLD, 11));
+				btnMinimizeSystem.setBorder(null);
+				btnMinimizeSystem.setBackground(new Color(0, 51, 255));
+				btnMinimizeSystem.setBounds(1291, 0, 37, 22);
+				frmUserWindow.getContentPane().add(btnMinimizeSystem);
+		
+				JLabel lblShoeThisInventory = new JLabel("Shoe This Inventory Management System");
+				lblShoeThisInventory.setBounds(10, 0, 463, 23);
+				frmUserWindow.getContentPane().add(lblShoeThisInventory);
+				lblShoeThisInventory.setForeground(Color.WHITE);
+				lblShoeThisInventory.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		
+				JLabel tittlebar = new JLabel("");
+				tittlebar.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/title.png")));
+				tittlebar.setBounds(0, 0, 1366, 22);
+				frmUserWindow.getContentPane().add(tittlebar);
+		
+		pnlPrompt.setBorder(new LineBorder(new Color(51, 153, 255), 3));
+		pnlPrompt.setBackground(new Color(255, 255, 255));
+		pnlPrompt.setBounds(679, 304, 300, 138);
+		frmUserWindow.getContentPane().add(pnlPrompt);
+		pnlPrompt.setLayout(null);
+		
+		final JButton btnInventoryManagement = new JButton("");
+		btnInventoryManagement.setRolloverIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IMActive.png")));
+		final JButton btnShoesMasterData = new JButton("");
+		btnShoesMasterData.setRolloverIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IMDActive.png")));
+		final JButton btnDelivery = new JButton("");
+		btnDelivery.setRolloverIcon(new ImageIcon(UserWindow.class.getResource("/app/image/deliveryActive.png")));
+		final JButton btnSales = new JButton("");
+		final JPanel pnlSales = new JPanel();
+		btnSales.setRolloverIcon(new ImageIcon(UserWindow.class.getResource("/app/image/SalesActive.png")));
+		final JPanel pnlInventoryManagement = new JPanel();
+		final JPanel pnlItemMasterData = new JPanel();
+		final JPanel pnlDelivery = new JPanel();
+		JButton button = new JButton("Yes");
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				pnlPrompt.setVisible(false);
+				pnlItemMasterData.setVisible(false);
+				pnlDelivery.setVisible(false);
+				pnlSales.setVisible(false);
+				pnlInventoryManagement.setVisible(false);
+				btnShoesMasterData.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IMD.png")));
+				btnDelivery.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/delivery.png")));
+				btnSales.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/Sales.png")));
+				btnInventoryManagement.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IM.png")));
+				
+			}
+		});
+		button.setForeground(Color.WHITE);
+		button.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		button.setBorder(null);
+		button.setBackground(new Color(51, 102, 255));
+		button.setBounds(80, 92, 66, 35);
+		pnlPrompt.add(button);
+		
+		JButton button_1 = new JButton("No");
+		button_1.setForeground(Color.WHITE);
+		button_1.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		button_1.setBorder(null);
+		button_1.setBackground(new Color(51, 102, 255));
+		button_1.setBounds(156, 92, 66, 35);
+		pnlPrompt.add(button_1);
+		
+		txtPrompt = new JTextField();
+		txtPrompt.setEditable(false);
+		txtPrompt.setText("<prompt>");
+		txtPrompt.setOpaque(false);
+		txtPrompt.setHorizontalAlignment(SwingConstants.CENTER);
+		txtPrompt.setForeground(new Color(255, 0, 0));
+		txtPrompt.setFont(new Font("SansSerif", Font.PLAIN, 18));
+		txtPrompt.setColumns(10);
+		txtPrompt.setBorder(null);
+		txtPrompt.setBounds(10, 27, 280, 46);
+		pnlPrompt.add(txtPrompt);
 
 		JPanel pnlSideBar = new JPanel();
 		pnlSideBar.setBackground(Color.WHITE);
@@ -181,15 +271,20 @@ public class UserWindow {
 		frmUserWindow.getContentPane().add(pnlSideBar);
 		pnlSideBar.setLayout(null);
 
-		final JPanel pnlSales = new JPanel();
 		pnlSales.setBackground(Color.WHITE);
 		pnlSales.setVisible(false);
 		pnlSales.setBorder(new LineBorder(new Color(51, 153, 255)));
 		pnlSales.setBounds(310, 33, 0, 0);
 		frmUserWindow.getContentPane().add(pnlSales);
 		pnlSales.setLayout(null);
-
 		JButton btnCloseSales = new JButton("X");
+		btnCloseSales.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				pnlPrompt.setVisible(true);
+				txtPrompt.setText("Are your sure you want to close ?");
+			}
+		});
 		btnCloseSales.setBounds(1009, 0, 37, 23);
 		btnCloseSales.setForeground(Color.WHITE);
 		btnCloseSales.setFont(new Font("SansSerif", Font.BOLD, 11));
@@ -237,6 +332,7 @@ public class UserWindow {
 
 		JButton button_2 = new JButton("OK");
 		button_2.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				SelectItem.setVisible(false);
 			}
@@ -365,6 +461,7 @@ public class UserWindow {
 		final JPanel SpecifyCustomerField = new JPanel();
 		JButton btnSet = new JButton("Set");
 		btnSet.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if(tblSalesItem.getSelectedRow()==-1){
 					SelectItem.setVisible(true);
@@ -446,6 +543,7 @@ public class UserWindow {
 
 		final JButton btnOkSpecifyCustomer = new JButton("OK");
 		btnOkSpecifyCustomer.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				SpecifyCustomerField.setVisible(false);
 			}
@@ -554,6 +652,7 @@ public class UserWindow {
 			boolean[] columnEditables = new boolean[] {
 				false, false, false, false, false, false, false, true, false
 			};
+			@Override
 			public boolean isCellEditable(int row, int column) {
 				return columnEditables[column];
 			}
@@ -569,6 +668,7 @@ public class UserWindow {
 
 		final JButton btnOk_1 = new JButton("OK");
 		btnOk_1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				TestConnection tc = new TestConnection();
 				DatabaseManager dm = new DatabaseManager();
@@ -596,8 +696,9 @@ public class UserWindow {
 			}
 		});
 		btnOk_1.setVisible(false);
-		JButton btnSaleItem = new JButton("Sale Item");
+		JButton btnSaleItem = new JButton("Set Meet Up");
 		btnSaleItem.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				pnlSaleTab.setBounds(10, 70, 1026, 643);
 				pnlSaleTab.setVisible(true);
@@ -615,6 +716,7 @@ public class UserWindow {
 
 		JButton btnSalesReport = new JButton("Sales Report");
 		btnSalesReport.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				pnlSaleTab.setVisible(false);
 				pnlSaleTab.setBounds(10, 70, 0, 0);
@@ -649,6 +751,7 @@ public class UserWindow {
 			boolean[] columnEditables = new boolean[] {
 				false, false, false, false, false, false, false, false, false, false
 			};
+			@Override
 			public boolean isCellEditable(int row, int column) {
 				return columnEditables[column];
 			}
@@ -670,23 +773,11 @@ public class UserWindow {
 		btnOk_1.setBackground(new Color(51, 102, 255));
 		btnOk_1.setBounds(987, 34, 49, 35);
 		pnlSales.add(btnOk_1);
-
-
-
-		final JButton btnInventoryManagement = new JButton("");
-		btnInventoryManagement.setRolloverIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IMActive.png")));
-		final JButton btnShoesMasterData = new JButton("");
-		btnShoesMasterData.setRolloverIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IMDActive.png")));
-		final JButton btnDelivery = new JButton("");
-		btnDelivery.setRolloverIcon(new ImageIcon(UserWindow.class.getResource("/app/image/deliveryActive.png")));
-		final JButton btnSales = new JButton("");
-		btnSales.setRolloverIcon(new ImageIcon(UserWindow.class.getResource("/app/image/SalesActive.png")));
-		final JPanel pnlInventoryManagement = new JPanel();
-		final JPanel pnlItemMasterData = new JPanel();
-		final JPanel pnlDelivery = new JPanel();
+		
 		pnlItemMasterData.setVisible(false);
 		btnInventoryManagement.setBackground(Color.WHITE);
 		btnInventoryManagement.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				pnlInventoryManagement.setVisible(true);
 				pnlInventoryManagement.setBounds(310, 33, 1046, 724);
@@ -705,6 +796,7 @@ public class UserWindow {
 		pnlSideBar.add(btnInventoryManagement);
 
 		btnShoesMasterData.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0){
 				pnlInventoryManagement.setVisible(false);
 				pnlItemMasterData.setVisible(true);
@@ -723,6 +815,7 @@ public class UserWindow {
 		pnlSideBar.add(btnShoesMasterData);
 
 		btnDelivery.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				pnlInventoryManagement.setVisible(false);
 				pnlItemMasterData.setVisible(false);
@@ -733,6 +826,7 @@ public class UserWindow {
 				btnInventoryManagement.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IM.png")));
 				btnShoesMasterData.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IMD.png")));
 				btnSales.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/Sales.png")));
+				
 			}
 		});
 		btnDelivery.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/delivery.png")));
@@ -741,6 +835,7 @@ public class UserWindow {
 		pnlSideBar.add(btnDelivery);
 
 		btnSales.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				pnlSales.setVisible(true);
 				pnlSaleTab.setVisible(true);
@@ -777,6 +872,7 @@ public class UserWindow {
 
 		JButton btnLogout = new JButton("Logout");
 		btnLogout.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				panel.setVisible(true);
 			}
@@ -789,6 +885,7 @@ public class UserWindow {
 		
 		JButton btnYes = new JButton("Yes");
 		btnYes.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				LoginWindow l = new LoginWindow();
 				l.frmLogin.setVisible(true);
@@ -804,6 +901,7 @@ public class UserWindow {
 		
 		JButton btnNo = new JButton("No");
 		btnNo.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				panel.setVisible(false);
 			}
@@ -830,6 +928,7 @@ public class UserWindow {
 
 		JButton btnchangePassword = new JButton("*Change Password");
 		btnchangePassword.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				ChangePassword scp = new ChangePassword();
 				scp.setVisible(true);
@@ -857,17 +956,16 @@ public class UserWindow {
 		pnlInventoryManagement.setVisible(false);
 		pnlInventoryManagement.setBackground(new Color(255, 255, 255));
 		pnlInventoryManagement.setBorder(new LineBorder(new Color(51, 153, 255)));
-		pnlInventoryManagement.setBounds(310, 33, 1046, 724);
+		pnlInventoryManagement.setBounds(310, 33, 0, 0);
 		frmUserWindow.getContentPane().add(pnlInventoryManagement);
 		pnlInventoryManagement.setLayout(null);
 
 		JButton btnCloseIM = new JButton("X");
 		btnCloseIM.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(JOptionPane.showConfirmDialog(frmUserWindow, "Are you sure you want to close ?","PROMPT",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)==0){
-					pnlInventoryManagement.setVisible(false);
-					btnInventoryManagement.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IM.png")));
-				}
+				pnlPrompt.setVisible(true);
+				txtPrompt.setText("Are your sure you want to close ?");
 
 			}
 		});
@@ -904,6 +1002,7 @@ public class UserWindow {
 
 		JButton button_3 = new JButton("OK");
 		button_3.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				SuccessDelete.setVisible(false);
 			}
@@ -942,6 +1041,7 @@ public class UserWindow {
 			boolean[] columnEditables = new boolean[] {
 				false, false, false, false, false, false, false, false, false
 			};
+			@Override
 			public boolean isCellEditable(int row, int column) {
 				return columnEditables[column];
 			}
@@ -950,6 +1050,7 @@ public class UserWindow {
 
 		JButton btnAdd = new JButton("Add");
 		btnAdd.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				AddItem ai = new AddItem(get);
 				ai.setLocationRelativeTo(null);
@@ -971,6 +1072,7 @@ public class UserWindow {
 		final JPanel Warning = new JPanel();
 		JButton btnEdit = new JButton("Edit");
 		btnEdit.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(tblItems.getSelectedRow()==-1){
 					Warning.setVisible(true);
@@ -1002,6 +1104,7 @@ public class UserWindow {
 
 		JButton btnDelete = new JButton("Delete");
 		btnDelete.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if(tblItems.getSelectedRow()==-1){
 					Warning.setVisible(true);
@@ -1139,6 +1242,7 @@ public class UserWindow {
 
 		JButton btnOK = new JButton("OK");
 		btnOK.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				Warning.setVisible(false);
 			}
@@ -1152,6 +1256,7 @@ public class UserWindow {
 
 		JButton btnAddBrand = new JButton("Add Brand");
 		btnAddBrand.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				AddBrand ab = new AddBrand(null);
 				ab.setVisible(true);
@@ -1170,6 +1275,17 @@ public class UserWindow {
 		pnlInventoryManagement.add(btnAddBrand);
 		
 		JButton btnAddColor = new JButton("Add Color");
+		btnAddColor.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				AddColor ac = new AddColor();
+				ac.setVisible(true);
+				ac.setLocationRelativeTo(null);
+				ac.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+				ac.setAlwaysOnTop(true);
+				frmUserWindow.setFocusable(false);
+			}
+		});
 		btnAddColor.setForeground(Color.WHITE);
 		btnAddColor.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		btnAddColor.setBorder(null);
@@ -1185,12 +1301,10 @@ public class UserWindow {
 
 		JButton btmCloseIMD = new JButton("X");
 		btmCloseIMD.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(JOptionPane.showConfirmDialog(frmUserWindow, "Are you sure you want to close ?","PROMPT",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)==0){
-					pnlItemMasterData.setVisible(false);
-					btnShoesMasterData.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IMD.png")));
-				}
-
+				pnlPrompt.setVisible(true);
+				txtPrompt.setText("Are your sure you want to close ?");
 
 			}
 		});
@@ -1289,6 +1403,7 @@ public class UserWindow {
 			boolean[] columnEditables = new boolean[] {
 				false, false, false, false, false, false, false, false, false, false
 			};
+			@Override
 			public boolean isCellEditable(int row, int column) {
 				return columnEditables[column];
 			}
@@ -1310,6 +1425,7 @@ public class UserWindow {
 			boolean[] columnEditables = new boolean[] {
 				false, false, false, false, false, false, false, false, false
 			};
+			@Override
 			public boolean isCellEditable(int row, int column) {
 				return columnEditables[column];
 			}
@@ -1320,6 +1436,7 @@ public class UserWindow {
 		final JButton btnDeletedItems = new JButton("Deleted Items");
 		final JButton btnRetreiveItem = new JButton("Retreive Item");
 		btnRetreiveItem.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(tblDeleted.getSelectedRow()==-1){
 					JOptionPane.showMessageDialog(frmUserWindow, "Select item to retreive !");
@@ -1371,6 +1488,7 @@ public class UserWindow {
 			}
 		});
 		btnItemList.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				scrollPaneDeleteItems.setVisible(false);
 				scrollPaneItemList.setVisible(true);
@@ -1386,6 +1504,7 @@ public class UserWindow {
 		pnlItemMasterData.add(btnItemList);
 
 		btnDeletedItems.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				scrollPaneDeleteItems.setVisible(true);
 				scrollPaneDeleteItems.setBounds(10, 112, 1026, 566);
@@ -1417,11 +1536,10 @@ public class UserWindow {
 
 		JButton btnCloseDelivery = new JButton("X");
 		btnCloseDelivery.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(JOptionPane.showConfirmDialog(frmUserWindow, "Are you sure you want to close ?","PROMPT",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)==0){
-					pnlDelivery.setVisible(false);
-					btnDelivery.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/delivery.png")));
-				}
+				pnlPrompt.setVisible(true);
+				txtPrompt.setText("Are your sure you want to close ?");
 			}
 		});
 		btnCloseDelivery.setForeground(Color.WHITE);
@@ -1472,6 +1590,7 @@ public class UserWindow {
 
 		JButton btnDeliver_1 = new JButton("Deliver");
 		btnDeliver_1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				DeliveryTab.setVisible(true);
 				DeliveryTab.setBounds(0, 35, 1016, 645);
@@ -1489,6 +1608,7 @@ public class UserWindow {
 
 		JButton btnDeliveryReports = new JButton("Delivery Reports");
 		btnDeliveryReports.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				DeliveryTab.setVisible(false);
 				scrollPaneDeliveryReports.setVisible(true);
@@ -1622,6 +1742,7 @@ public class UserWindow {
 			boolean[] columnEditables = new boolean[] {
 				false, false, false, false, false, false, false, false, false
 			};
+			@Override
 			public boolean isCellEditable(int row, int column) {
 				return columnEditables[column];
 			}
@@ -1630,6 +1751,7 @@ public class UserWindow {
 
 		JButton btnDeliver = new JButton("Deliver");
 		btnDeliver.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if(tblDeliveryItems.getSelectedRow()==-1){
 					SelectItemtoDeliver.setVisible(true);
@@ -1709,6 +1831,7 @@ public class UserWindow {
 
 		JButton btnOk = new JButton("OK");
 		btnOk.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				SelectItemtoDeliver.setVisible(false);
 			}
@@ -1785,6 +1908,7 @@ public class UserWindow {
 			boolean[] columnEditables = new boolean[] {
 					false, false, false, false, false, false, false, false
 			};
+			@Override
 			public boolean isCellEditable(int row, int column) {
 				return columnEditables[column];
 			}
