@@ -12,7 +12,6 @@ public class Inventory {
 	private int Price;
 	private String ItemColor;
 	
-	
 	public String getItemStyle() {
 		return ItemStyle;
 	}

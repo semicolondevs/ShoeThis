@@ -14,6 +14,7 @@ public class DeleteLogs {
 	
 	
 	
+	
 	public String getItemStyle() {
 		return ItemStyle;
 	}

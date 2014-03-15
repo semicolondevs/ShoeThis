@@ -10,18 +10,11 @@ import app.model.Color;
 import app.model.DeleteLogs;
 import app.model.Inventory;
 import app.model.Delivery;
+import app.model.Sales;
 import app.model.Superuser;
-import app.model.User;
-
 public class DatabaseManager {
 
-
-	public ResultSet accountAdmin(Connection conn) throws SQLException, ClassNotFoundException  {  
-		String query = "SELECT * FROM users";  
-		Statement st = conn.createStatement();  
-		ResultSet rs = st.executeQuery(query);  
-		return rs;  
-	}
+	//Select all data from database
 	
 	public ResultSet brands(Connection conn) throws SQLException, ClassNotFoundException  {  
 		String query = "SELECT * FROM brands";  
@@ -30,8 +23,15 @@ public class DatabaseManager {
 		return rs;  
 	}
 	
+	public ResultSet sales(Connection conn) throws SQLException, ClassNotFoundException  {  
+		String query = "SELECT * FROM sales ORDER by salesNo DESC";  
+		Statement st = conn.createStatement();  
+		ResultSet rs = st.executeQuery(query);  
+		return rs;  
+	}
+	
 	public ResultSet accountSuper(Connection conn) throws SQLException, ClassNotFoundException  {  
-		String query = "SELECT * FROM superuser";  
+		String query = "SELECT * FROM user";  
 		Statement st = conn.createStatement();  
 		ResultSet rs = st.executeQuery(query);  
 		return rs;  
@@ -62,6 +62,8 @@ public class DatabaseManager {
 		ResultSet rs = st.executeQuery(query);  
 		return rs; 
 	}
+	
+	//Insert data in the database
 	public int insertBrand(Connection conn,Brands b) throws SQLException, ClassNotFoundException {
 		String query ="INSERT INTO brands (brandId,brandName) VALUES('"+b.getBrandId()+"','"+b.getBrandName()+"')";
 		Statement st = conn.createStatement();
@@ -74,17 +76,19 @@ public class DatabaseManager {
 		int rs = st.executeUpdate(query);		
 		return rs;
 	}
-	public int insertDelivery(Connection conn,Delivery d) throws SQLException, ClassNotFoundException {
-		String query ="INSERT INTO delivery (DeliveryNo,ItemCode,ItemName,Receipient,Quantity,TotalPrice,Address,DateDelivered) VALUES('"+d.getDeliveryNo()
-				+"','"+d.getItemCode()+"','"+d.getItemName()+"','"+d.getReceipient()+"','"+d.getQuantity()+"','"+d.getTotalPrice()+"','"+d.getAddress()+"','"+d.getDateDelivered()+"')";
+	
+	public int insertSalesReport(Connection conn,Sales s) throws SQLException, ClassNotFoundException {
+		String query ="INSERT INTO sales (salesNo,customerName,contactNo,ItemCode,ItemName,Price,Quantity,Total,DateTime,Status) VALUES('"+s.getSalesNo()
+				+"','"+s.getCustomerName()+"','"+s.getContactNumber()+"','"+s.getItemCode()+"','"+s.getItemName()+"','"+s.getPrice()+"','"+s.getQuantity()
+				+"','"+s.getTotal()+"','"+s.getDateTime()+"','"+s.getStatus()+"')";
 		Statement st = conn.createStatement();
 		int rs = st.executeUpdate(query);		
 		return rs;
 	}
-
-	public int insertAccount(Connection conn, User u) throws SQLException, ClassNotFoundException {
-		String query ="INSERT INTO users (adminID,username,password,Name,ContactNumber,PinCode) VALUES('"+u.getID()
-				+"','"+u.getUserName()+"','"+u.getPassword()+"','"+u.getName()+"','"+u.getContactNo()+"','"+u.getPinCode()+"')";
+	
+	public int insertDelivery(Connection conn,Delivery d) throws SQLException, ClassNotFoundException {
+		String query ="INSERT INTO delivery (DeliveryNo,ItemCode,ItemName,Receipient,Quantity,TotalPrice,Address,DateDelivered) VALUES('"+d.getDeliveryNo()
+				+"','"+d.getItemCode()+"','"+d.getItemName()+"','"+d.getReceipient()+"','"+d.getQuantity()+"','"+d.getTotalPrice()+"','"+d.getAddress()+"','"+d.getDateDelivered()+"')";
 		Statement st = conn.createStatement();
 		int rs = st.executeUpdate(query);		
 		return rs;
@@ -105,7 +109,7 @@ public class DatabaseManager {
 		return rs;
 	}
 
-
+	//Delete data from database;
 	public int deleteUser(Connection conn,String id) throws SQLException, ClassNotFoundException{
 		String query ="DELETE FROM users WHERE adminID ='"+id+"'";
 		Statement st = conn.createStatement();
@@ -132,10 +136,10 @@ public class DatabaseManager {
 		int rs = st.executeUpdate(query);		
 		return rs;
 	}
-
+	//Update data from database
 	public int updateItem(Connection conn, Inventory i) throws SQLException, ClassNotFoundException {
 		String query = "UPDATE inventory_items SET ItemName ='"+i.getItemName()+"', ItemBrand = '"+i.getItemBrand()+"',ItemColor = '"+i.getItemColor()+"', ItemSize='"+i.getSize()+"', ItemQuantity ='"+i.getQuantityAvailable()
-				+"', Price ='"+i.getPrice()+"' WHERE ItemCode ='"+i.getItemCode()+"'";    
+				+"', Price ='"+i.getPrice()+"', ItemStyle = '"+i.getItemStyle()+"', ItemCategory ='"+i.getItemCategory()+"' WHERE ItemCode ='"+i.getItemCode()+"'";    
 		Statement st = conn.createStatement();  
 		int rs = st.executeUpdate(query);  
 		return rs; 
@@ -146,14 +150,13 @@ public class DatabaseManager {
 		int rs= st.executeUpdate(query);
 		return rs;
 	}
-
-	public int updateUser(Connection conn, User u) throws SQLException, ClassNotFoundException {
-		String query = "UPDATE users SET username ='"+u.getUserName()+"', password ='"+u.getPassword()
-				+"',Name='"+u.getName()+"', ContactNumber ='"+u.getContactNo()+"', PinCode='"+u.getPinCode()+"'  WHERE adminID ='"+u.getID()+"'";    
-		Statement st = conn.createStatement();  
-		int rs = st.executeUpdate(query);  
-		return rs; 
+	public int updateStatus(Connection conn, Sales s)throws SQLException, ClassNotFoundException{
+		String query ="UPDATE sales SET Status='"+s.getStatus()+"' WHERE salesNo='"+s.getSalesNo()+"'";
+		Statement st = conn.createStatement();
+		int rs= st.executeUpdate(query);
+		return rs;
 	}
+	
 	public int updateBrand(Connection conn, Brands b) throws SQLException, ClassNotFoundException {
 		String query = "UPDATE brands SET brandName ='"+b.getBrandName()+"'  WHERE brandId ='"+b.getBrandId()+"'";    
 		Statement st = conn.createStatement();  
@@ -161,28 +164,20 @@ public class DatabaseManager {
 		return rs; 
 	}
 	public int updateSuperuserPassword(Connection conn, Superuser su) throws SQLException, ClassNotFoundException {
-		String query = "UPDATE superuser SET password ='"+su.getPassword()+"'  WHERE username ='"+su.getUsername()+"'";    
+		String query = "UPDATE user SET password ='"+su.getPassword()+"'  WHERE username ='"+su.getUsername()+"'";    
 		Statement st = conn.createStatement();  
 		int rs = st.executeUpdate(query);  
 		return rs; 
 	}
-	public int updateAdminPassword(Connection conn, User u) throws SQLException, ClassNotFoundException {
-		String query = "UPDATE users SET password ='"+u.getPassword()+"'  WHERE username ='"+u.getUserName()+"'";    
-		Statement st = conn.createStatement();  
-		int rs = st.executeUpdate(query);  
-		return rs; 
-	}
+
+	
+	//Search data from database
 	public ResultSet searchItem(Connection conn,String name)throws ClassNotFoundException, SQLException {
 		Statement st = conn.createStatement();
-		ResultSet rs = st.executeQuery("SELECT * FROM inventory_items WHERE ItemName LIKE '%"+name+"%' OR ItemColor LIKE '%"+name+"%' OR ItemBrand LIKE '%"+name+"%'");
+		ResultSet rs = st.executeQuery("SELECT * FROM inventory_items WHERE ItemName LIKE '%"+name+"%' OR ItemColor LIKE '%"+name+"%' OR ItemBrand LIKE '%"+name+"%' OR ItemCategory LIKE '%"+name+"%'");
 		return rs;
 	}
 	
-	public ResultSet searchUser(Connection conn,String name)throws ClassNotFoundException, SQLException {
-		Statement st = conn.createStatement();
-		ResultSet rs = st.executeQuery("SELECT * FROM users WHERE username LIKE '%"+name+"%' OR Name LIKE '%"+name+"%'");
-		return rs;
-	}
 	
 
 }

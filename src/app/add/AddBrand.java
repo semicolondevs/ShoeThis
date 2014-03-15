@@ -42,8 +42,20 @@ public class AddBrand extends JDialog {
 	private final JPanel contentPanel = new JPanel();
 	private JTextField txtBrand;
 	private JTable tblBrand;
-	int trylang = 0;
+	private JButton btnX;
+	private JButton btnSave;
+	private JButton btnEdit;
+	private JButton btnDelete;
+	
 	public AddBrand(final Brands b) {
+		addWindowFocusListener(new WindowFocusListener() {
+			public void windowGainedFocus(WindowEvent arg0) {
+				updateBrandTable();
+			}
+			public void windowLostFocus(WindowEvent arg0) {
+				dispose();
+			}
+		});
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowOpened(WindowEvent arg0) {
@@ -57,6 +69,213 @@ public class AddBrand extends JDialog {
 		contentPanel.setBorder(new LineBorder(new Color(51, 153, 255)));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		contentPanel.setLayout(null);
+		
+		final JPanel pnlSuccessAdd = new JPanel();
+		pnlSuccessAdd.setBackground(new Color(255, 255, 255));
+		pnlSuccessAdd.setVisible(false);
+		
+		final JPanel pnlExit = new JPanel();
+		pnlExit.setVisible(false);
+		
+		final JPanel pnlSelect = new JPanel();
+		pnlSelect.setVisible(false);
+		
+		final JPanel pnlDelete = new JPanel();
+		pnlDelete.setVisible(false);
+		
+		final JPanel pnlSuccessDelete = new JPanel();
+		pnlSuccessDelete.setVisible(false);
+		pnlSuccessDelete.setBorder(new LineBorder(new Color(51, 153, 255), 3));
+		pnlSuccessDelete.setBackground(new Color(255, 255, 255));
+		pnlSuccessDelete.setBounds(10, 141, 286, 111);
+		contentPanel.add(pnlSuccessDelete);
+		pnlSuccessDelete.setLayout(null);
+		
+		JLabel lblSuccesfullyDeleted = new JLabel("Succesfully Deleted !");
+		lblSuccesfullyDeleted.setHorizontalAlignment(SwingConstants.CENTER);
+		lblSuccesfullyDeleted.setForeground(Color.GREEN);
+		lblSuccesfullyDeleted.setFont(new Font("SansSerif", Font.PLAIN, 20));
+		lblSuccesfullyDeleted.setBounds(0, 11, 287, 29);
+		pnlSuccessDelete.add(lblSuccesfullyDeleted);
+		
+		JButton button = new JButton("OK");
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pnlSuccessDelete.setVisible(false);
+			}
+		});
+		button.setForeground(Color.WHITE);
+		button.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		button.setBorder(null);
+		button.setBackground(new Color(51, 102, 255));
+		button.setBounds(98, 65, 89, 35);
+		pnlSuccessDelete.add(button);
+		pnlDelete.setBorder(new LineBorder(new Color(51, 153, 255), 3));
+		pnlDelete.setBackground(new Color(255, 255, 255));
+		pnlDelete.setBounds(10, 141, 286, 111);
+		contentPanel.add(pnlDelete);
+		pnlDelete.setLayout(null);
+		
+		JLabel lblAreYouSure = new JLabel("Are you sure you want to Delete ?");
+		lblAreYouSure.setHorizontalAlignment(SwingConstants.CENTER);
+		lblAreYouSure.setForeground(Color.RED);
+		lblAreYouSure.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		lblAreYouSure.setBounds(0, 11, 287, 29);
+		pnlDelete.add(lblAreYouSure);
+		
+		JButton btnYesDelete = new JButton("Yes");
+		btnYesDelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				TestConnection tc = new TestConnection();
+				DatabaseManager dm = new DatabaseManager();
+				
+				DefaultTableModel model = (DefaultTableModel)tblBrand.getModel();
+				try{
+				String id = model.getValueAt(tblBrand.getSelectedRow(), 0).toString();
+				
+				try {
+					int rs = dm.deleteBrand(tc.getConnection(), id);
+					if(rs==1){
+						updateBrandTable();
+						pnlSuccessDelete.setVisible(true);
+						pnlDelete.setVisible(false);
+					}
+				} catch (ClassNotFoundException | SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				}catch(ArrayIndexOutOfBoundsException aio){
+					pnlSelect.setVisible(true);
+					txtBrand.setEnabled(false);
+					btnDelete.setEnabled(false);
+					btnEdit.setEnabled(false);
+					btnSave.setEnabled(false);
+					tblBrand.setEnabled(false);
+					pnlDelete.setVisible(false);
+				}
+			}
+		});
+		btnYesDelete.setForeground(Color.WHITE);
+		btnYesDelete.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		btnYesDelete.setBorder(null);
+		btnYesDelete.setBackground(new Color(51, 102, 255));
+		btnYesDelete.setBounds(70, 65, 66, 35);
+		pnlDelete.add(btnYesDelete);
+		
+		JButton btnNoDelete = new JButton("No");
+		btnNoDelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pnlDelete.setVisible(false);
+			}
+		});
+		btnNoDelete.setForeground(Color.WHITE);
+		btnNoDelete.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		btnNoDelete.setBorder(null);
+		btnNoDelete.setBackground(new Color(51, 102, 255));
+		btnNoDelete.setBounds(146, 65, 66, 35);
+		pnlDelete.add(btnNoDelete);
+		pnlSelect.setBorder(new LineBorder(new Color(51, 153, 255), 3));
+		pnlSelect.setBackground(new Color(255, 255, 255));
+		pnlSelect.setBounds(10, 141, 286, 111);
+		contentPanel.add(pnlSelect);
+		pnlSelect.setLayout(null);
+		
+		JLabel lblSelectItemTo = new JLabel("Please Select Item !");
+		lblSelectItemTo.setHorizontalAlignment(SwingConstants.CENTER);
+		lblSelectItemTo.setForeground(Color.RED);
+		lblSelectItemTo.setFont(new Font("SansSerif", Font.PLAIN, 18));
+		lblSelectItemTo.setBounds(0, 11, 287, 29);
+		pnlSelect.add(lblSelectItemTo);
+		
+		JButton btnOkEdit = new JButton("OK");
+		btnOkEdit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pnlSelect.setVisible(false);
+				txtBrand.setEnabled(true);
+				btnDelete.setEnabled(true);
+				btnEdit.setEnabled(true);
+				btnSave.setEnabled(true);
+				tblBrand.setEnabled(true);
+			}
+		});
+		btnOkEdit.setForeground(Color.WHITE);
+		btnOkEdit.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		btnOkEdit.setBorder(null);
+		btnOkEdit.setBackground(new Color(51, 102, 255));
+		btnOkEdit.setBounds(97, 65, 89, 35);
+		pnlSelect.add(btnOkEdit);
+		pnlExit.setBackground(new Color(255, 255, 255));
+		pnlExit.setBorder(new LineBorder(new Color(51, 153, 255), 3));
+		pnlExit.setBounds(10, 141, 286, 111);
+		contentPanel.add(pnlExit);
+		pnlExit.setLayout(null);
+		
+		JLabel label_3 = new JLabel("Are you sure you want to close ?");
+		label_3.setHorizontalAlignment(SwingConstants.CENTER);
+		label_3.setForeground(Color.RED);
+		label_3.setFont(new Font("SansSerif", Font.PLAIN, 18));
+		label_3.setBounds(0, 11, 287, 29);
+		pnlExit.add(label_3);
+		
+		JButton btnYesExit = new JButton("Yes");
+		btnYesExit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				dispose();
+			}
+		});
+		btnYesExit.setForeground(Color.WHITE);
+		btnYesExit.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		btnYesExit.setBorder(null);
+		btnYesExit.setBackground(new Color(51, 102, 255));
+		btnYesExit.setBounds(72, 65, 66, 35);
+		pnlExit.add(btnYesExit);
+		
+		JButton btnExitNo = new JButton("No");
+		btnExitNo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pnlExit.setVisible(false);
+				txtBrand.setEnabled(true);
+				btnDelete.setEnabled(true);
+				btnEdit.setEnabled(true);
+				btnSave.setEnabled(true);
+				tblBrand.setEnabled(true);
+			}
+		});
+		btnExitNo.setForeground(Color.WHITE);
+		btnExitNo.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		btnExitNo.setBorder(null);
+		btnExitNo.setBackground(new Color(51, 102, 255));
+		btnExitNo.setBounds(148, 65, 66, 35);
+		pnlExit.add(btnExitNo);
+		pnlSuccessAdd.setBorder(new LineBorder(new Color(51, 153, 255), 3));
+		pnlSuccessAdd.setBounds(10, 141, 286, 111);
+		contentPanel.add(pnlSuccessAdd);
+		pnlSuccessAdd.setLayout(null);
+		
+		JLabel label_2 = new JLabel("Succesfully Added !");
+		label_2.setHorizontalAlignment(SwingConstants.CENTER);
+		label_2.setForeground(Color.GREEN);
+		label_2.setFont(new Font("SansSerif", Font.PLAIN, 20));
+		label_2.setBounds(0, 11, 287, 29);
+		pnlSuccessAdd.add(label_2);
+		
+		JButton btnSuccesOk = new JButton("OK");
+		btnSuccesOk.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				pnlSuccessAdd.setVisible(false);
+				txtBrand.setEnabled(true);
+				btnDelete.setEnabled(true);
+				btnEdit.setEnabled(true);
+				btnSave.setEnabled(true);
+				tblBrand.setEnabled(true);
+			}
+		});
+		btnSuccesOk.setForeground(Color.WHITE);
+		btnSuccesOk.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		btnSuccesOk.setBorder(null);
+		btnSuccesOk.setBackground(new Color(51, 102, 255));
+		btnSuccesOk.setBounds(98, 65, 89, 35);
+		pnlSuccessAdd.add(btnSuccesOk);
 
 		JLabel lblAddBrand = new JLabel("Add Brand");
 		lblAddBrand.setForeground(Color.WHITE);
@@ -64,21 +283,24 @@ public class AddBrand extends JDialog {
 		lblAddBrand.setBounds(10, 0, 162, 23);
 		contentPanel.add(lblAddBrand);
 
-		JButton button = new JButton("X");
-		button.addActionListener(new ActionListener() {
+		btnX = new JButton("X");
+		btnX.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if(JOptionPane.showConfirmDialog(contentPanel, "Are you sure you want to close ?","PROMPT",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)==0){
-					dispose();
-				}
+				pnlExit.setVisible(true);
+				txtBrand.setEnabled(false);
+				btnDelete.setEnabled(false);
+				btnEdit.setEnabled(false);
+				btnSave.setEnabled(false);
+				tblBrand.setEnabled(false);
 			}
 		});
-		button.setForeground(Color.WHITE);
-		button.setFont(new Font("SansSerif", Font.BOLD, 11));
-		button.setBorder(null);
-		button.setBackground(new Color(0, 51, 255));
-		button.setBounds(270, 1, 37, 22);
-		contentPanel.add(button);
+		btnX.setForeground(Color.WHITE);
+		btnX.setFont(new Font("SansSerif", Font.BOLD, 11));
+		btnX.setBorder(null);
+		btnX.setBackground(new Color(0, 51, 255));
+		btnX.setBounds(270, 1, 37, 22);
+		contentPanel.add(btnX);
 
 		JLabel label_1 = new JLabel("");
 		label_1.setIcon(new ImageIcon(AddBrand.class.getResource("/app/image/title.png")));
@@ -102,11 +324,10 @@ public class AddBrand extends JDialog {
 		txtBrand.setBounds(44, 59, 209, 29);
 		contentPanel.add(txtBrand);
 
-		JButton btnSave = new JButton("Save");
+		btnSave = new JButton("Save");
 		btnSave.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				trylang = 1;
 				if(txtBrand.getText().equals("")){
 					JOptionPane.showMessageDialog(contentPanel, "Please specify fields !");
 				}else{
@@ -114,19 +335,22 @@ public class AddBrand extends JDialog {
 				DatabaseManager dm = new DatabaseManager();
 				Brands b = new Brands();
 				
+				txtBrand.setEnabled(false);
+				btnDelete.setEnabled(false);
+				btnEdit.setEnabled(false);
+				btnSave.setEnabled(false);
+				
 				b.setBrandName(txtBrand.getText());
 
 				try {
 					boolean exists = alreadyExists(txtBrand.getText());
 					if(!exists){
-						
-					
 					int rs = dm.insertBrand(tc.getConnection(), b);
 					if(rs==1){
 							
 							txtBrand.setText("");
 							updateBrandTable();
-							JOptionPane.showMessageDialog(contentPanel, "Brand Added !");
+							pnlSuccessAdd.setVisible(true);
 					
 					}
 					}else{
@@ -154,20 +378,32 @@ public class AddBrand extends JDialog {
 
 		tblBrand = new JTable();
 		tblBrand.setModel(new DefaultTableModel(
-				new Object[][] {
-				},
-				new String[] {
-						"Brand Id", "Brands"
-				}
-				));
+			new Object[][] {
+			},
+			new String[] {
+				"Brand Id", "Brands"
+			}
+		) {
+			boolean[] columnEditables = new boolean[] {
+				false, false
+			};
+			public boolean isCellEditable(int row, int column) {
+				return columnEditables[column];
+			}
+		});
 		scrollPane.setViewportView(tblBrand);
 
-		JButton btnEdit = new JButton("Edit");
+		btnEdit = new JButton("Edit");
 		btnEdit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(tblBrand.getSelectedRow()==-1){
-					JOptionPane.showMessageDialog(contentPanel, "Select brand to edit !");
+					pnlSelect.setVisible(true);
+					txtBrand.setEnabled(false);
+					btnDelete.setEnabled(false);
+					btnEdit.setEnabled(false);
+					btnSave.setEnabled(false);
+					tblBrand.setEnabled(false);
 				}else{
 					try{
 					EditBrand eb = new EditBrand(getSelectedBrand());
@@ -189,28 +425,19 @@ public class AddBrand extends JDialog {
 		btnEdit.setBounds(109, 99, 89, 35);
 		contentPanel.add(btnEdit);
 
-		JButton btnDelete = new JButton("Delete");
+		btnDelete = new JButton("Delete");
 		btnDelete.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if(tblBrand.getSelectedRow()==-1){
-					JOptionPane.showMessageDialog(contentPanel, "Select brand to delete !");
+					pnlSelect.setVisible(true);
+					txtBrand.setEnabled(false);
+					btnDelete.setEnabled(false);
+					btnEdit.setEnabled(false);
+					btnSave.setEnabled(false);
+					tblBrand.setEnabled(false);
 				}else{
-					TestConnection tc = new TestConnection();
-					DatabaseManager dm = new DatabaseManager();
-					
-					DefaultTableModel model = (DefaultTableModel)tblBrand.getModel();
-					String id = model.getValueAt(tblBrand.getSelectedRow(), 0).toString();
-					try {
-						int rs = dm.deleteBrand(tc.getConnection(), id);
-						if(rs==1){
-							updateBrandTable();
-							JOptionPane.showMessageDialog(contentPanel, "Successfully Deleted !");
-						}
-					} catch (ClassNotFoundException | SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					pnlDelete.setVisible(true);
 				}
 			}
 		});

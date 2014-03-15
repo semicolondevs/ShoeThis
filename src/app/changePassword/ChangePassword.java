@@ -1,10 +1,12 @@
 package app.changePassword;
 
 import java.awt.BorderLayout;
+
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+
 import java.awt.Color;
 
 import javax.swing.border.LineBorder;
@@ -19,7 +21,7 @@ import javax.swing.SwingConstants;
 import app.db.DatabaseManager;
 import app.db.TestConnection;
 import app.model.Superuser;
-import app.ui.AdminWindow;
+import app.ui.UserWindow;
 
 import java.awt.SystemColor;
 import java.awt.event.ActionListener;
@@ -29,15 +31,26 @@ import java.sql.SQLException;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowEvent;
 
-public class SuperuserChangePassword extends JDialog {
+import javax.swing.JPasswordField;
+
+public class ChangePassword extends JDialog {
 
 	private final JPanel contentPanel = new JPanel();
 	private JTextField txtUsername;
-	private JTextField txtPassword;
 	private JTextField txtNewPassword;
+	private JPasswordField txtPassword;
+	private JTextField txtPrompt;
+	private JButton btnOK;
 
 	
-	public SuperuserChangePassword() {
+	public ChangePassword() {
+		addWindowFocusListener(new WindowFocusListener() {
+			public void windowGainedFocus(WindowEvent e) {
+			}
+			public void windowLostFocus(WindowEvent e) {
+				dispose();
+			}
+		});
 		
 		setUndecorated(true);
 		setBounds(100, 100, 400, 238);
@@ -46,6 +59,42 @@ public class SuperuserChangePassword extends JDialog {
 		contentPanel.setBorder(new LineBorder(new Color(51, 153, 255)));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		contentPanel.setLayout(null);
+		
+		final JPanel pnlPrompt = new JPanel();
+		pnlPrompt.setVisible(false);
+		pnlPrompt.setBackground(new Color(255, 255, 255));
+		pnlPrompt.setBorder(new LineBorder(new Color(51, 153, 255), 3));
+		pnlPrompt.setBounds(40, 34, 321, 115);
+		contentPanel.add(pnlPrompt);
+		pnlPrompt.setLayout(null);
+		
+		JButton button_1 = new JButton("Ok");
+		button_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				pnlPrompt.setVisible(false);
+				txtUsername.setEnabled(true);
+				txtPassword.setEnabled(true);
+				btnOK.setVisible(true);
+			}
+		});
+		button_1.setForeground(Color.WHITE);
+		button_1.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		button_1.setBorder(null);
+		button_1.setBackground(new Color(51, 102, 255));
+		button_1.setBounds(124, 69, 66, 35);
+		pnlPrompt.add(button_1);
+		
+		txtPrompt = new JTextField();
+		txtPrompt.setText("<prompt>");
+		txtPrompt.setOpaque(false);
+		txtPrompt.setHorizontalAlignment(SwingConstants.CENTER);
+		txtPrompt.setForeground(Color.RED);
+		txtPrompt.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		txtPrompt.setEditable(false);
+		txtPrompt.setColumns(10);
+		txtPrompt.setBorder(null);
+		txtPrompt.setBounds(0, 11, 321, 35);
+		pnlPrompt.add(txtPrompt);
 		
 		JLabel lblChangePassword = new JLabel("Change Password");
 		lblChangePassword.setForeground(Color.WHITE);
@@ -57,9 +106,7 @@ public class SuperuserChangePassword extends JDialog {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if(JOptionPane.showConfirmDialog(contentPanel, "Are you sure you want to close ?","PROMPT",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)==0){
-					dispose();
-				}
+				dispose();
 			}
 		});
 		button.setForeground(Color.WHITE);
@@ -70,7 +117,7 @@ public class SuperuserChangePassword extends JDialog {
 		contentPanel.add(button);
 		
 		JLabel label_1 = new JLabel("");
-		label_1.setIcon(new ImageIcon(SuperuserChangePassword.class.getResource("/app/image/title.png")));
+		label_1.setIcon(new ImageIcon(ChangePassword.class.getResource("/app/image/title.png")));
 		label_1.setForeground(Color.WHITE);
 		label_1.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		label_1.setBounds(0, 0, 450, 23);
@@ -97,17 +144,15 @@ public class SuperuserChangePassword extends JDialog {
 		lblPassword.setBounds(40, 74, 105, 29);
 		contentPanel.add(lblPassword);
 		
-		txtPassword = new JTextField();
-		txtPassword.setHorizontalAlignment(SwingConstants.CENTER);
-		txtPassword.setForeground(Color.BLACK);
-		txtPassword.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		txtPassword.setColumns(10);
-		txtPassword.setBorder(new LineBorder(new Color(51, 153, 255)));
-		txtPassword.setBounds(165, 74, 209, 29);
-		contentPanel.add(txtPassword);
-		
 		final JPanel pnlNewPassword = new JPanel();
 		pnlNewPassword.setVisible(false);
+		
+		txtPassword = new JPasswordField();
+		txtPassword.setHorizontalAlignment(SwingConstants.CENTER);
+		txtPassword.setBorder(new LineBorder(new Color(51, 153, 255)));
+		txtPassword.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		txtPassword.setBounds(165, 68, 209, 30);
+		contentPanel.add(txtPassword);
 		pnlNewPassword.setOpaque(false);
 		pnlNewPassword.setBounds(10, 155, 380, 72);
 		contentPanel.add(pnlNewPassword);
@@ -145,8 +190,8 @@ public class SuperuserChangePassword extends JDialog {
 						if(rs==1){
 							JOptionPane.showMessageDialog(contentPanel, "Successfully Changed !");
 							dispose();
-							AdminWindow aw = new AdminWindow();
-							aw.frmAdmin.setFocusable(true);
+							UserWindow sw = new UserWindow();
+							sw.frmUserWindow.setFocusable(true);
 						}
 					} catch (ClassNotFoundException | SQLException e) {
 						// TODO Auto-generated catch block
@@ -160,19 +205,20 @@ public class SuperuserChangePassword extends JDialog {
 		btnSave.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		btnSave.setBorder(null);
 		btnSave.setBackground(new Color(51, 102, 255));
-		btnSave.setBounds(291, 34, 89, 35);
+		btnSave.setBounds(257, 37, 89, 35);
 		pnlNewPassword.add(btnSave);
 		
-		JButton btnOK = new JButton("OK");
+		btnOK = new JButton("OK");
 		btnOK.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				
+					btnOK.setVisible(false);
 					TestConnection tc = new TestConnection();
 					DatabaseManager dm = new DatabaseManager();
 					int blank = 0;
 					int wrong = 0;
-					
+					txtPassword.setEnabled(false);
+					txtUsername.setEnabled(false);
 					try {
 						ResultSet rs = dm.accountSuper(tc.getConnection());
 						while(rs.next()){
@@ -192,10 +238,12 @@ public class SuperuserChangePassword extends JDialog {
 						e.printStackTrace();
 					}
 					if(blank==1){
-						JOptionPane.showMessageDialog(contentPanel, "Specify Fields !");
+						pnlPrompt.setVisible(true);
+						txtPrompt.setText("Specify Field(s) !");
 					}
 					if(wrong==1){
-						JOptionPane.showMessageDialog(contentPanel, "Check Your Username & Password !");
+						pnlPrompt.setVisible(true);
+						txtPrompt.setText("Check you Username and Password !");
 					}
 				}
 			

@@ -40,6 +40,13 @@ public class EditBrand extends JDialog {
 
 
 	public EditBrand(final Brands b) {
+		addWindowFocusListener(new WindowFocusListener() {
+			public void windowGainedFocus(WindowEvent arg0) {
+			}
+			public void windowLostFocus(WindowEvent arg0) {
+				dispose();
+			}
+		});
 		
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -55,6 +62,34 @@ public class EditBrand extends JDialog {
 		contentPanel.setBorder(new LineBorder(new Color(51, 153, 255)));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		contentPanel.setLayout(null);
+		
+		final JPanel pnlSuccessEdit = new JPanel();
+		pnlSuccessEdit.setVisible(false);
+		pnlSuccessEdit.setBorder(new LineBorder(new Color(51, 153, 255), 3));
+		pnlSuccessEdit.setBackground(new Color(255, 255, 255));
+		pnlSuccessEdit.setBounds(10, 33, 209, 123);
+		contentPanel.add(pnlSuccessEdit);
+		pnlSuccessEdit.setLayout(null);
+		
+		JLabel lblSuccesfullyEdited = new JLabel("Succesfully Edited !");
+		lblSuccesfullyEdited.setHorizontalAlignment(SwingConstants.CENTER);
+		lblSuccesfullyEdited.setForeground(Color.GREEN);
+		lblSuccesfullyEdited.setFont(new Font("SansSerif", Font.PLAIN, 20));
+		lblSuccesfullyEdited.setBounds(-41, 28, 287, 29);
+		pnlSuccessEdit.add(lblSuccesfullyEdited);
+		
+		JButton button = new JButton("OK");
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				dispose();
+			}
+		});
+		button.setForeground(Color.WHITE);
+		button.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		button.setBorder(null);
+		button.setBackground(new Color(51, 102, 255));
+		button.setBounds(61, 77, 89, 35);
+		pnlSuccessEdit.add(button);
 		{
 			txtBrandId = new JTextField();
 			txtBrandId.setOpaque(false);
@@ -140,16 +175,12 @@ public class EditBrand extends JDialog {
 						if(txtBrandName.getText().equals("")){
 							JOptionPane.showMessageDialog(contentPanel, "Specify Field !");
 						}else{
-							boolean exists = alreadyExists(txtBrandName.getText());
-							if(!exists){
-								JOptionPane.showMessageDialog(contentPanel, "Successfully Edited !");
+							
+								pnlSuccessEdit.setVisible(true);
 								AddBrand ab = new AddBrand(null);
 								ab.setFocusable(true);
-								dispose();
-							}else{
-								JOptionPane.showMessageDialog(contentPanel, "Nothing Change !");
-								txtBrandName.setText("");
-							}
+								
+							
 						}
 					}
 				} catch (ClassNotFoundException | SQLException e) {
@@ -167,30 +198,5 @@ public class EditBrand extends JDialog {
 		btnSave.setBounds(72, 162, 89, 35);
 		contentPanel.add(btnSave);
 	}
-	public static boolean alreadyExists(String brandName){
-		TestConnection tc = new TestConnection();
-
-
-		boolean exists = false;
-
-		try {
-			String query = "SELECT count(*) AS brandCount FROM brands WHERE brandName = '"+brandName+"'";
-			Statement stmt = tc.getConnection().createStatement();
-			ResultSet rs = stmt.executeQuery(query);
-
-			if (rs.next()) {
-				if (Integer.parseInt(rs.getString("brandCount")) > 0 ) {
-					exists = true;
-				} else {
-					exists = false;
-				}
-			}
-
-		} catch (ClassNotFoundException | SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return exists;
-	}
+	
 }

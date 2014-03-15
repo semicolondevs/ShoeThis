@@ -18,7 +18,7 @@ import javax.swing.SwingConstants;
 import app.db.DatabaseManager;
 import app.db.TestConnection;
 import app.model.Inventory;
-import app.ui.SuperUserWindow;
+import app.ui.UserWindow;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -47,12 +47,21 @@ public class EditItem extends JDialog {
 	private JTextField txtName;
 	private JTextField txtQuantity;
 	private JTextField txtPrice;
-	private JComboBox<?> cmbBrand;
-	private JComboBox<?> cmbSize;
-	private JComboBox<?> cmbColor;
+	private final JComboBox<String> cmbBrand;
+	private final JComboBox<String> cmbColor;
+	private final JComboBox<String> cmbSize;
+	private final JComboBox<String> cmbStyle;
+	private final JComboBox<String> cmbCategory;
 
 
 	public EditItem(final Inventory i) {
+		addWindowFocusListener(new WindowFocusListener() {
+			public void windowGainedFocus(WindowEvent e) {
+			}
+			public void windowLostFocus(WindowEvent e) {
+				dispose();
+			}
+		});
 		
 		setUndecorated(true);
 		setBackground(new Color(51, 51, 255));
@@ -66,15 +75,45 @@ public class EditItem extends JDialog {
 				cmbBrand.setSelectedItem(i.getItemBrand());
 				cmbColor.setSelectedItem(i.getItemColor());
 				cmbSize.setSelectedItem(i.getSize());
+				cmbStyle.setSelectedItem(i.getItemStyle());
+				cmbCategory.setSelectedItem(i.getItemCategory());
 
 			}
 		});
-		setBounds(900, 320, 327, 380);
+		setBounds(900, 320, 327, 440);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBackground(new Color(255, 255, 255));
 		contentPanel.setBorder(new LineBorder(new Color(51, 153, 255)));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		contentPanel.setLayout(null);
+		
+		final JPanel SuccessEdit = new JPanel();
+		SuccessEdit.setBackground(new Color(255, 255, 255));
+		SuccessEdit.setVisible(false);
+		SuccessEdit.setBorder(new LineBorder(new Color(51, 153, 255), 3));
+		SuccessEdit.setBounds(10, 114, 307, 133);
+		contentPanel.add(SuccessEdit);
+		SuccessEdit.setLayout(null);
+		
+		JLabel lblSuccesfullyEdited = new JLabel("Successfully Edited !");
+		lblSuccesfullyEdited.setHorizontalAlignment(SwingConstants.CENTER);
+		lblSuccesfullyEdited.setForeground(new Color(0, 255, 0));
+		lblSuccesfullyEdited.setFont(new Font("SansSerif", Font.PLAIN, 20));
+		lblSuccesfullyEdited.setBounds(10, 28, 287, 29);
+		SuccessEdit.add(lblSuccesfullyEdited);
+		
+		JButton btnOk = new JButton("OK");
+		btnOk.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				dispose();
+			}
+		});
+		btnOk.setForeground(Color.WHITE);
+		btnOk.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		btnOk.setBorder(null);
+		btnOk.setBackground(new Color(51, 102, 255));
+		btnOk.setBounds(108, 87, 89, 35);
+		SuccessEdit.add(btnOk);
 
 		JLabel label_1 = new JLabel("Edit Shoe");
 		label_1.setForeground(Color.WHITE);
@@ -144,7 +183,18 @@ public class EditItem extends JDialog {
 		contentPanel.add(label_4);
 
 		cmbBrand = new JComboBox();
-		cmbBrand.setModel(new DefaultComboBoxModel(new String[] {"Nike", "Adidas", "Jordan", "Under Armor"}));
+		TestConnection tc = new TestConnection();
+		DatabaseManager dm = new DatabaseManager();
+		try {
+			ResultSet rsBrand = dm.brands(tc.getConnection());
+			while(rsBrand.next()){
+				String getBrand = rsBrand.getString("brandName");
+				cmbBrand.addItem(getBrand);
+			}
+		} catch (ClassNotFoundException | SQLException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 		cmbBrand.setForeground(SystemColor.textHighlight);
 		cmbBrand.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		cmbBrand.setBorder(new LineBorder(new Color(51, 153, 255)));
@@ -159,7 +209,16 @@ public class EditItem extends JDialog {
 		contentPanel.add(label_5);
 
 		cmbColor = new JComboBox();
-		cmbColor.setModel(new DefaultComboBoxModel(new String[] {"Red", "Blue", "Green", "White", "Black", "Gray", "Pink", "Yellow", "Orange"}));
+		try {
+			ResultSet rsColor = dm.color(tc.getConnection());
+			while(rsColor.next()){
+				String getColor = rsColor.getString("color");
+				cmbColor.addItem(getColor);
+			}
+		} catch (ClassNotFoundException | SQLException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 		cmbColor.setForeground(SystemColor.textHighlight);
 		cmbColor.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		cmbColor.setBorder(new LineBorder(new Color(51, 153, 255)));
@@ -170,22 +229,46 @@ public class EditItem extends JDialog {
 		JLabel label_6 = new JLabel("Size");
 		label_6.setForeground(SystemColor.textHighlight);
 		label_6.setFont(new Font("SansSerif", Font.PLAIN, 20));
-		label_6.setBounds(10, 194, 105, 29);
+		label_6.setBounds(11, 274, 105, 29);
 		contentPanel.add(label_6);
 
 		cmbSize = new JComboBox();
-		cmbSize.setModel(new DefaultComboBoxModel(new String[] {"5", "6", "6 1/2", "7", "7 1/2", "8", "8 1/2", "9", "9 1/2", "10", "11", "12"}));
+		cmbSize.setModel(new DefaultComboBoxModel(new String[] {"Small", "Medium", "Large", "5", "6", "6 1/2", "7", "7 1/2", "8", "8 1/2", "9", "9 1/2", "10", "11", "12"}));
 		cmbSize.setForeground(SystemColor.textHighlight);
 		cmbSize.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		cmbSize.setBorder(new LineBorder(new Color(51, 153, 255)));
 		cmbSize.setBackground(Color.WHITE);
-		cmbSize.setBounds(109, 194, 208, 29);
+		cmbSize.setBounds(110, 274, 208, 29);
 		contentPanel.add(cmbSize);
+		
+		cmbStyle = new JComboBox();
+		cmbStyle.setModel(new DefaultComboBoxModel(new String[] {"Customize", "Elite", "N/A"}));
+		cmbStyle.setForeground(SystemColor.textHighlight);
+		cmbStyle.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		cmbStyle.setBorder(new LineBorder(new Color(51, 153, 255)));
+		cmbStyle.setBackground(Color.WHITE);
+		cmbStyle.setBounds(108, 194, 208, 29);
+		contentPanel.add(cmbStyle);
+		
+		JLabel label_10 = new JLabel("Category");
+		label_10.setForeground(SystemColor.textHighlight);
+		label_10.setFont(new Font("SansSerif", Font.PLAIN, 20));
+		label_10.setBounds(10, 234, 105, 29);
+		contentPanel.add(label_10);
+		
+		cmbCategory = new JComboBox();
+		cmbCategory.setModel(new DefaultComboBoxModel(new String[] {"Shoes", "Cap", "Socks"}));
+		cmbCategory.setForeground(SystemColor.textHighlight);
+		cmbCategory.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		cmbCategory.setBorder(new LineBorder(new Color(51, 153, 255)));
+		cmbCategory.setBackground(Color.WHITE);
+		cmbCategory.setBounds(108, 234, 208, 29);
+		contentPanel.add(cmbCategory);
 
 		JLabel label_7 = new JLabel("Quantity");
 		label_7.setForeground(SystemColor.textHighlight);
 		label_7.setFont(new Font("SansSerif", Font.PLAIN, 20));
-		label_7.setBounds(9, 234, 105, 29);
+		label_7.setBounds(10, 314, 105, 29);
 		contentPanel.add(label_7);
 
 		txtQuantity = new JTextField();
@@ -203,13 +286,13 @@ public class EditItem extends JDialog {
 		txtQuantity.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		txtQuantity.setColumns(10);
 		txtQuantity.setBorder(new LineBorder(new Color(51, 153, 255)));
-		txtQuantity.setBounds(108, 234, 209, 29);
+		txtQuantity.setBounds(109, 314, 209, 29);
 		contentPanel.add(txtQuantity);
 
 		JLabel label_8 = new JLabel("Price");
 		label_8.setForeground(SystemColor.textHighlight);
 		label_8.setFont(new Font("SansSerif", Font.PLAIN, 20));
-		label_8.setBounds(9, 274, 105, 29);
+		label_8.setBounds(10, 354, 105, 29);
 		contentPanel.add(label_8);
 
 		txtPrice = new JTextField();
@@ -227,101 +310,41 @@ public class EditItem extends JDialog {
 		txtPrice.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		txtPrice.setColumns(10);
 		txtPrice.setBorder(new LineBorder(new Color(51, 153, 255)));
-		txtPrice.setBounds(108, 274, 209, 29);
+		txtPrice.setBounds(109, 354, 209, 29);
 		contentPanel.add(txtPrice);
 
 		JButton btnSave = new JButton("Save");
 		btnSave.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				String brandName = "";
-				String size = "";
-				String color = "";
+				
 				TestConnection tc = new TestConnection();
 				DatabaseManager dm = new DatabaseManager();
 
 				i.setItemCode(txtCode.getText());
 				i.setItemName(txtName.getText());
+				i.setItemBrand(cmbBrand.getSelectedItem());
+				i.setItemColor(cmbColor.getSelectedItem().toString());
+				i.setItemStyle(cmbStyle.getSelectedItem().toString());
+				i.setItemCategory(cmbCategory.getSelectedItem().toString());
+				i.setSize(cmbSize.getSelectedItem().toString());
 				i.setQuantityAvailable(Integer.parseInt(txtQuantity.getText()));
 				i.setPrice(Integer.parseInt(txtPrice.getText()));
-				if(cmbBrand.getSelectedItem().equals("Nike")){
-					brandName = "Nike";
-				}else if(cmbBrand.getSelectedItem().equals("Adidas")){
-					brandName = "Adidas";
-				}else if(cmbBrand.getSelectedItem().equals("Jordan")){
-					brandName = "Jordan";
-				}else if(cmbBrand.getSelectedItem().equals("Under Armor")){
-					brandName = "Under Armor";
-				}
-				i.setItemBrand(brandName);
-				if(cmbSize.getSelectedItem().equals("5")){
-					size="5";
-
-				}else if(cmbSize.getSelectedItem().equals("6")){
-					size="6";
-				}else if(cmbSize.getSelectedItem().equals("7")){
-					size="7";
-				}else if(cmbSize.getSelectedItem().equals("8")){
-					size="8";
-				}else if(cmbSize.getSelectedItem().equals("9")){
-					size="9";
-				}else if(cmbSize.getSelectedItem().equals("10")){
-					size="10";
-				}else if(cmbSize.getSelectedItem().equals("11")){
-					size="11";
-				}else if(cmbSize.getSelectedItem().equals("12")){
-					size="12";
-				}else if(cmbSize.getSelectedItem().equals("5 1/2")){
-					size="5 1/2";
-				}else if(cmbSize.getSelectedItem().equals("6 1/2")){
-					size="6-1/2";
-				}else if(cmbSize.getSelectedItem().equals("7 1/2")){
-					size="7 1/2";
-				}else if(cmbSize.getSelectedItem().equals("8 1/2")){
-					size="8 1/2";
-				}else if(cmbSize.getSelectedItem().equals("9 1/2")){
-					size="9 1/2";
-
-				}
-				i.setSize(size);
-
-				if(cmbColor.getSelectedItem().equals("Red")){
-					color = "Red";
-				}else if(cmbColor.getSelectedItem().equals("Blue")){
-					color = "Blue";
-				}else if(cmbColor.getSelectedItem().equals("Green")){
-					color = "Green";
-				}else if(cmbColor.getSelectedItem().equals("White")){
-					color = "White";
-				}else if(cmbColor.getSelectedItem().equals("Black")){
-					color = "Black";
-				}else if(cmbColor.getSelectedItem().equals("Gray")){
-					color = "Gray";
-				}else if(cmbColor.getSelectedItem().equals("Pink")){
-					color = "Pink";
-				}else if(cmbColor.getSelectedItem().equals("Yellow")){
-					color = "Yellow";
-				}else if(cmbColor.getSelectedItem().equals("Orange")){
-					color = "Orange";
-				}
-				i.setItemColor(color);
+				
 
 				try {
-					boolean exists = alreadyExists(txtName.getText().toString(), cmbBrand.getSelectedItem().toString(), cmbColor.getSelectedItem().toString(),cmbSize.getSelectedItem().toString(),txtQuantity.getText(),txtPrice.getText());
-					if(!exists){
+					
 						int rs = dm.updateItem(tc.getConnection(), i);
 						if(rs==1){
 
-							SuperUserWindow su = new SuperUserWindow();
-							su.frmSuperUser.requestFocusInWindow();
-							JOptionPane.showMessageDialog(contentPanel, "Successfully Edited !");
-							dispose();
+							UserWindow su = new UserWindow();
+							su.frmUserWindow.requestFocusInWindow();
+							SuccessEdit.setVisible(true);
+							
 
 						}
 
-					}else{
-						JOptionPane.showMessageDialog(contentPanel, "Nothing Change ! or\nAlready Exists ! ");
-					}
+					
 				} catch (ClassNotFoundException | SQLException e) {
 
 					e.printStackTrace();
@@ -332,7 +355,7 @@ public class EditItem extends JDialog {
 		btnSave.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		btnSave.setBorder(null);
 		btnSave.setBackground(new Color(51, 102, 255));
-		btnSave.setBounds(10, 334, 89, 35);
+		btnSave.setBounds(10, 394, 89, 35);
 		contentPanel.add(btnSave);
 
 		JButton btnCancel = new JButton("Cancel");
@@ -346,34 +369,14 @@ public class EditItem extends JDialog {
 		btnCancel.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		btnCancel.setBorder(null);
 		btnCancel.setBackground(new Color(51, 102, 255));
-		btnCancel.setBounds(109, 334, 89, 35);
+		btnCancel.setBounds(109, 394, 89, 35);
 		contentPanel.add(btnCancel);
-	}
-	
-	public static boolean alreadyExists(String name,String brand, String color,String size, String quantity,String price){
-		TestConnection tc = new TestConnection();
-
-
-		boolean exists = false;
-
-		try {
-			String query = "SELECT count(*) AS itemCount FROM inventory_items WHERE ItemName = '"+name+"' AND ItemBrand = '"+brand+"' AND ItemColor = '"+color+"' AND ItemSize = '"+size+"' AND ItemQuantity = '"+quantity+"' AND Price = '"+price+"';";
-			Statement stmt = tc.getConnection().createStatement();
-			ResultSet rs = stmt.executeQuery(query);
-
-			if (rs.next()) {
-				if (Integer.parseInt(rs.getString("itemCount")) > 0 ) {
-					exists = true;
-				} else {
-					exists = false;
-				}
-			}
-
-		} catch (ClassNotFoundException | SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return exists;
+		
+		JLabel label_9 = new JLabel("Style");
+		label_9.setForeground(SystemColor.textHighlight);
+		label_9.setFont(new Font("SansSerif", Font.PLAIN, 20));
+		label_9.setBounds(10, 194, 105, 29);
+		contentPanel.add(label_9);
+		
 	}
 }

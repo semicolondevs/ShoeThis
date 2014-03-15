@@ -35,17 +35,14 @@ import javax.swing.DefaultComboBoxModel;
 
 import app.add.AddBrand;
 import app.add.AddItem;
-import app.add.AddUser;
-import app.changePassword.AdminChangePassword;
-import app.changePassword.SuperuserChangePassword;
+import app.changePassword.ChangePassword;
 import app.db.DatabaseManager;
 import app.db.TestConnection;
 import app.edit.EditItem;
-import app.edit.EditUser;
 import app.model.DeleteLogs;
 import app.model.Delivery;
 import app.model.Inventory;
-import app.model.User;
+import app.model.Sales;
 import app.util.DigitalClock;
 
 import java.awt.event.MouseAdapter;
@@ -71,9 +68,10 @@ import javax.swing.JLayeredPane;
 import javax.swing.JDesktopPane;
 import javax.swing.JMenuBar;
 
-public class SuperUserWindow {
 
-	public JFrame frmSuperUser;
+public class UserWindow {
+
+	public JFrame frmUserWindow;
 	public JPanel SuccessEdit;
 	private JTable tblItems;
 	private JTextField txtSearchItem;
@@ -83,15 +81,13 @@ public class SuperUserWindow {
 	private String search;
 	private String code;
 	private String id;
-	private DateFormat dateFormat = new SimpleDateFormat("SSSS");
 	private DateFormat currentDate = new SimpleDateFormat("MMMM dd,yyyy");
 	private DateFormat deliveryDate = new SimpleDateFormat("MMMM dd,yyyy");
 	private Inventory get = new Inventory();
+	private Sales getSales = new Sales();
 	private JTextField txtSearchData;
 	private JTable tblItemData;
 	private JTable tblDeleted;
-	private JTextField txtSearchUser;
-	private JTable tblUser;
 	private JTextField txtDeliverTo;
 	private JTextField txtAddress;
 	private JTextField txtQuantityDeliver;
@@ -99,10 +95,14 @@ public class SuperUserWindow {
 	private JTable tblDeliveryItems;
 	private JTextField txtSearchDeliver;
 	private JTable tblDeliveryReports;
-	private JTable table;
+	private JTable tblSalesItem;
 	private JTextField txtCustomerName;
+	private JTextField txtContactNo;
+	private JTable tblSalesReport;
+	private JTextField txtQuantitySale;
+	private JTextField txtSearchSaleItem;
 
-	public SuperUserWindow() {
+	public UserWindow() {
 		initialize();
 
 	}
@@ -111,42 +111,41 @@ public class SuperUserWindow {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frmSuperUser = new JFrame();
-		frmSuperUser.addWindowFocusListener(new WindowFocusListener() {
+		frmUserWindow = new JFrame();
+		frmUserWindow.addWindowFocusListener(new WindowFocusListener() {
 			public void windowGainedFocus(WindowEvent arg0) {
 				updateItemTable();
 				updateDeleteLogsTable();
-				updateUserTable();
 				updateDeliverTable();
+				updateSalesReportTable();
 			}
 			public void windowLostFocus(WindowEvent arg0) {
 			}
 		});
-		frmSuperUser.addWindowListener(new WindowAdapter() {
+		frmUserWindow.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowOpened(WindowEvent arg0) {
 				updateItemTable();
 				updateDeleteLogsTable();
-				updateUserTable();
 				updateDeliverTable();
-
+				updateSalesReportTable();
 			}
 		});
-		frmSuperUser.setUndecorated(true);
-		frmSuperUser.setBounds(0, 0, 1366, 768);
-		frmSuperUser.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmSuperUser.getContentPane().setLayout(null);
+		frmUserWindow.setUndecorated(true);
+		frmUserWindow.setBounds(0, 0, 1366, 768);
+		frmUserWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmUserWindow.getContentPane().setLayout(null);
 
 		JButton btnExitSystem = new JButton("X");
 		btnExitSystem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(JOptionPane.showConfirmDialog(frmSuperUser, "Are you sure you want to exit ?","PROMPT",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)==0){
+				if(JOptionPane.showConfirmDialog(frmUserWindow, "Are you sure you want to exit ?","PROMPT",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)==0){
 					System.exit(0);
 				}
 			}
 		});
 		btnExitSystem.setBounds(1329, 0, 37, 22);
-		frmSuperUser.getContentPane().add(btnExitSystem);
+		frmUserWindow.getContentPane().add(btnExitSystem);
 		btnExitSystem.setForeground(Color.WHITE);
 		btnExitSystem.setFont(new Font("SansSerif", Font.BOLD, 11));
 		btnExitSystem.setBorder(null);
@@ -155,7 +154,7 @@ public class SuperUserWindow {
 		JButton btnMinimizeSystem = new JButton("_");
 		btnMinimizeSystem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frmSuperUser.setState(Frame.ICONIFIED);
+				frmUserWindow.setState(Frame.ICONIFIED);
 			}
 		});
 		btnMinimizeSystem.setForeground(Color.WHITE);
@@ -163,105 +162,114 @@ public class SuperUserWindow {
 		btnMinimizeSystem.setBorder(null);
 		btnMinimizeSystem.setBackground(new Color(0, 51, 255));
 		btnMinimizeSystem.setBounds(1291, 0, 37, 22);
-		frmSuperUser.getContentPane().add(btnMinimizeSystem);
+		frmUserWindow.getContentPane().add(btnMinimizeSystem);
 
 		JLabel lblShoeThisInventory = new JLabel("Shoe This Inventory Management System");
 		lblShoeThisInventory.setBounds(10, 0, 463, 23);
-		frmSuperUser.getContentPane().add(lblShoeThisInventory);
+		frmUserWindow.getContentPane().add(lblShoeThisInventory);
 		lblShoeThisInventory.setForeground(Color.WHITE);
 		lblShoeThisInventory.setFont(new Font("SansSerif", Font.PLAIN, 15));
 
 		JLabel tittlebar = new JLabel("");
-		tittlebar.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/title.png")));
+		tittlebar.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/title.png")));
 		tittlebar.setBounds(0, 0, 1366, 22);
-		frmSuperUser.getContentPane().add(tittlebar);
+		frmUserWindow.getContentPane().add(tittlebar);
 
-		JPanel sideBar = new JPanel();
-		sideBar.setBackground(Color.WHITE);
-		sideBar.setBounds(0, 0, 300, 768);
-		frmSuperUser.getContentPane().add(sideBar);
-		sideBar.setLayout(null);
-		
-		final JPanel Sales = new JPanel();
-		Sales.setVisible(false);
-		Sales.setBorder(new LineBorder(new Color(51, 153, 255)));
-		Sales.setBounds(310, 33, 1046, 724);
-		frmSuperUser.getContentPane().add(Sales);
-		Sales.setLayout(null);
-		
+		JPanel pnlSideBar = new JPanel();
+		pnlSideBar.setBackground(Color.WHITE);
+		pnlSideBar.setBounds(0, 0, 300, 768);
+		frmUserWindow.getContentPane().add(pnlSideBar);
+		pnlSideBar.setLayout(null);
+
+		final JPanel pnlSales = new JPanel();
+		pnlSales.setBackground(Color.WHITE);
+		pnlSales.setVisible(false);
+		pnlSales.setBorder(new LineBorder(new Color(51, 153, 255)));
+		pnlSales.setBounds(310, 33, 0, 0);
+		frmUserWindow.getContentPane().add(pnlSales);
+		pnlSales.setLayout(null);
+
 		JButton btnCloseSales = new JButton("X");
 		btnCloseSales.setBounds(1009, 0, 37, 23);
 		btnCloseSales.setForeground(Color.WHITE);
 		btnCloseSales.setFont(new Font("SansSerif", Font.BOLD, 11));
 		btnCloseSales.setBorder(null);
 		btnCloseSales.setBackground(new Color(0, 51, 255));
-		Sales.add(btnCloseSales);
-		
+		pnlSales.add(btnCloseSales);
+
 		JLabel lblSales = new JLabel("Sales");
 		lblSales.setBounds(10, 0, 162, 23);
 		lblSales.setForeground(Color.WHITE);
 		lblSales.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		Sales.add(lblSales);
-		
+		pnlSales.add(lblSales);
+
 		JLabel label_9 = new JLabel("");
 		label_9.setBounds(0, 0, 1046, 23);
-		label_9.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/title.png")));
-		Sales.add(label_9);
-		
-		JButton btnSaleItem = new JButton("Sale Item");
-		btnSaleItem.setBounds(10, 34, 89, 35);
-		btnSaleItem.setForeground(Color.WHITE);
-		btnSaleItem.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		btnSaleItem.setBorder(null);
-		btnSaleItem.setBackground(new Color(51, 102, 255));
-		Sales.add(btnSaleItem);
-		
-		JButton btnSalesReport = new JButton("Sales Report");
-		btnSalesReport.setBounds(100, 34, 123, 35);
-		btnSalesReport.setForeground(Color.WHITE);
-		btnSalesReport.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		btnSalesReport.setBorder(null);
-		btnSalesReport.setBackground(new Color(51, 102, 255));
-		Sales.add(btnSalesReport);
-		
+		label_9.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/title.png")));
+		pnlSales.add(label_9);
+		final JPanel pnlSalesReportTab = new JPanel();
+		pnlSalesReportTab.setVisible(false);
+
+		final JPanel pnlSaleTab = new JPanel();
+
+		pnlSaleTab.setBounds(10, 70, 1026, 643);
+		pnlSales.add(pnlSaleTab);
+		pnlSaleTab.setLayout(null);
+
 		JPanel CustomerInfo = new JPanel();
-		CustomerInfo.setBounds(10, 70, 1026, 156);
-		Sales.add(CustomerInfo);
+		CustomerInfo.setBounds(0, 0, 1026, 156);
+		pnlSaleTab.add(CustomerInfo);
+		CustomerInfo.setBackground(Color.WHITE);
 		CustomerInfo.setLayout(null);
-		
-		JPanel SelectItemToSell = new JPanel();
-		SelectItemToSell.setVisible(false);
-		SelectItemToSell.setBounds(737, 11, 279, 46);
-		CustomerInfo.add(SelectItemToSell);
-		SelectItemToSell.setLayout(null);
-		
-		JLabel label_8 = new JLabel("Select Item to Deliver !");
-		label_8.setForeground(Color.RED);
-		label_8.setFont(new Font("SansSerif", Font.PLAIN, 18));
-		label_8.setBounds(10, 0, 247, 43);
-		SelectItemToSell.add(label_8);
-		
+
+		final JPanel SelectItem = new JPanel();
+		SelectItem.setBackground(Color.WHITE);
+		SelectItem.setVisible(false);
+		SelectItem.setBounds(737, 11, 279, 46);
+		CustomerInfo.add(SelectItem);
+		SelectItem.setLayout(null);
+
+		JLabel lblSelectItemTo_1 = new JLabel("Please Select Item");
+		lblSelectItemTo_1.setForeground(Color.RED);
+		lblSelectItemTo_1.setFont(new Font("SansSerif", Font.PLAIN, 18));
+		lblSelectItemTo_1.setBounds(61, 0, 153, 43);
+		SelectItem.add(lblSelectItemTo_1);
+
 		JButton button_2 = new JButton("OK");
+		button_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				SelectItem.setVisible(false);
+			}
+		});
 		button_2.setForeground(Color.WHITE);
 		button_2.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		button_2.setBorder(null);
 		button_2.setBackground(new Color(51, 102, 255));
 		button_2.setBounds(222, 5, 45, 35);
-		SelectItemToSell.add(button_2);
-		
+		SelectItem.add(button_2);
+
 		JLabel lblCustomerInformation = new JLabel("Customer Information");
 		lblCustomerInformation.setForeground(SystemColor.textHighlight);
 		lblCustomerInformation.setFont(new Font("SansSerif", Font.PLAIN, 20));
 		lblCustomerInformation.setBounds(20, 11, 226, 29);
 		CustomerInfo.add(lblCustomerInformation);
-		
+
 		JLabel lblCustomerName = new JLabel("Customer Name");
 		lblCustomerName.setForeground(SystemColor.textHighlight);
 		lblCustomerName.setFont(new Font("SansSerif", Font.PLAIN, 18));
 		lblCustomerName.setBounds(20, 51, 193, 29);
 		CustomerInfo.add(lblCustomerName);
-		
+
 		txtCustomerName = new JTextField();
+		txtCustomerName.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent getChar) {
+				char input = getChar.getKeyChar();
+				if(!(Character.isLetter(input)) || (input==KeyEvent.VK_BACK_SPACE) || (input==KeyEvent.VK_DELETE)){
+					getChar.consume();
+				}
+			}
+		});
 		txtCustomerName.setHorizontalAlignment(SwingConstants.CENTER);
 		txtCustomerName.setForeground(Color.BLACK);
 		txtCustomerName.setFont(new Font("SansSerif", Font.PLAIN, 15));
@@ -269,132 +277,487 @@ public class SuperUserWindow {
 		txtCustomerName.setBorder(new LineBorder(new Color(51, 153, 255)));
 		txtCustomerName.setBounds(20, 80, 209, 29);
 		CustomerInfo.add(txtCustomerName);
+
+		JLabel lblContactNo = new JLabel("Contact No.");
+		lblContactNo.setForeground(SystemColor.textHighlight);
+		lblContactNo.setFont(new Font("SansSerif", Font.PLAIN, 18));
+		lblContactNo.setBounds(239, 51, 193, 29);
+		CustomerInfo.add(lblContactNo);
+
+		txtContactNo = new JTextField();
+		txtContactNo.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent getChar) {
+				char input = getChar.getKeyChar();
+				if(!(Character.isDigit(input)) || (input==KeyEvent.VK_BACK_SPACE) || (input==KeyEvent.VK_DELETE)){
+					getChar.consume();
+				}
+			}
+		});
+		txtContactNo.setHorizontalAlignment(SwingConstants.CENTER);
+		txtContactNo.setForeground(Color.BLACK);
+		txtContactNo.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		txtContactNo.setColumns(10);
+		txtContactNo.setBorder(new LineBorder(new Color(51, 153, 255)));
+		txtContactNo.setBounds(241, 80, 141, 29);
+		CustomerInfo.add(txtContactNo);
+
+		JLabel lblMeetUpTime = new JLabel("Meet Up Time");
+		lblMeetUpTime.setForeground(SystemColor.textHighlight);
+		lblMeetUpTime.setFont(new Font("SansSerif", Font.PLAIN, 18));
+		lblMeetUpTime.setBounds(544, 51, 193, 29);
+		CustomerInfo.add(lblMeetUpTime);
+
+		JLabel lblMeetUpDate = new JLabel("Meet Up Date");
+		lblMeetUpDate.setForeground(SystemColor.textHighlight);
+		lblMeetUpDate.setFont(new Font("SansSerif", Font.PLAIN, 18));
+		lblMeetUpDate.setBounds(704, 51, 193, 29);
+		CustomerInfo.add(lblMeetUpDate);
+
+		final JComboBox<String> cmbMonth = new JComboBox();
+		cmbMonth.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		cmbMonth.setBackground(new Color(255, 255, 255));
+		cmbMonth.setBorder(new LineBorder(new Color(51, 153, 255)));
+		cmbMonth.setModel(new DefaultComboBoxModel(new String[] {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"}));
+		cmbMonth.setBounds(704, 80, 65, 29);
+		CustomerInfo.add(cmbMonth);
 		
-		JPanel SaleTab = new JPanel();
-		SaleTab.setBounds(10, 70, 1026, 643);
-		Sales.add(SaleTab);
-		SaleTab.setLayout(null);
-		
-		table = new JTable();
-		table.setBounds(0, 157, 1026, 486);
-		SaleTab.add(table);
+		final JComboBox<String> cmbDay = new JComboBox();
+		cmbDay.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		cmbDay.setBackground(new Color(255, 255, 255));
+		cmbDay.setBorder(new LineBorder(new Color(51, 153, 255)));
+		cmbDay.setModel(new DefaultComboBoxModel(new String[] {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"}));
+		cmbDay.setBounds(779, 80, 44, 29);
+		CustomerInfo.add(cmbDay);
+
+		final JComboBox<String> cmbYear = new JComboBox();
+		cmbYear.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		cmbYear.setBorder(new LineBorder(new Color(51, 153, 255)));
+		cmbYear.setBackground(new Color(255, 255, 255));
+		cmbYear.setModel(new DefaultComboBoxModel(new String[] {"2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028", "2029", "2030", "2031", "2032", "2033"}));
+		cmbYear.setBounds(832, 80, 65, 29);
+		CustomerInfo.add(cmbYear);
+
+		final JComboBox cmbHour = new JComboBox();
+		cmbHour.setModel(new DefaultComboBoxModel(new String[] {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"}));
+		cmbHour.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		cmbHour.setBorder(new LineBorder(new Color(51, 153, 255)));
+		cmbHour.setBackground(Color.WHITE);
+		cmbHour.setBounds(544, 80, 44, 29);
+		CustomerInfo.add(cmbHour);
+
+		final JComboBox cmbMinutes = new JComboBox();
+		cmbMinutes.setModel(new DefaultComboBoxModel(new String[] {"00", "30", "59"}));
+		cmbMinutes.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		cmbMinutes.setBorder(new LineBorder(new Color(51, 153, 255)));
+		cmbMinutes.setBackground(Color.WHITE);
+		cmbMinutes.setBounds(592, 80, 44, 29);
+		CustomerInfo.add(cmbMinutes);
+
+		final JComboBox cmbAMPM = new JComboBox();
+		cmbAMPM.setModel(new DefaultComboBoxModel(new String[] {"AM", "PM"}));
+		cmbAMPM.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		cmbAMPM.setBorder(new LineBorder(new Color(51, 153, 255)));
+		cmbAMPM.setBackground(Color.WHITE);
+		cmbAMPM.setBounds(644, 80, 50, 29);
+		CustomerInfo.add(cmbAMPM);
+
+		final JPanel SpecifyCustomerField = new JPanel();
+		JButton btnSet = new JButton("Set");
+		btnSet.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(tblSalesItem.getSelectedRow()==-1){
+					SelectItem.setVisible(true);
+				}else{
+					if(txtCustomerName.getText().equals("") || txtContactNo.getText().equals("")){
+						SpecifyCustomerField.setVisible(true);
+					}else{
+						TestConnection tc = new TestConnection();
+						DatabaseManager dm = new DatabaseManager();
+						Sales s = new Sales();
+						Inventory i = new Inventory();
+
+						String itemCode = get.getItemCode();
+						String itemName = get.getItemName();
+						int price = get.getPrice();
+						int quantity = get.getQuantityAvailable();
+						int saleQuantity = Integer.parseInt(txtQuantitySale.getText());
+						int total = price * saleQuantity;
+						
+						if(saleQuantity>quantity){
+							JOptionPane.showMessageDialog(frmUserWindow,"Unsufficient Quantity !");
+						}else{
+							String customerName = txtCustomerName.getText();
+							String contactNumber = txtContactNo.getText();
+							String time = cmbHour.getSelectedItem()+":"+cmbMinutes.getSelectedItem()+" "+cmbAMPM.getSelectedItem();
+							String date = cmbMonth.getSelectedItem()+" "+cmbDay.getSelectedItem()+", "+cmbYear.getSelectedItem();
+							String status = "";
+
+							s.setCustomerName(customerName);
+							s.setContactNumber(contactNumber);
+							s.setItemCode(itemCode);
+							s.setItemName(itemName);
+							s.setPrice(price);
+							s.setQuantity(saleQuantity);
+							s.setTotal(total);
+							s.setDateTime(date+" "+time);
+							s.setStatus(status);
+							
+
+							try {
+								int rs = dm.insertSalesReport(tc.getConnection(),s);
+								
+								
+								if(rs==1){
+									JOptionPane.showMessageDialog(frmUserWindow,"Your meet up with "+txtCustomerName.getText()+
+											"\non "+time+","+date);
+									clearText();
+									updateSalesReportTable();
+								}
+								
+								
+							} catch (ClassNotFoundException | SQLException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}				
+						}
+					}
+				}
+			}
+		});
+		btnSet.setForeground(Color.WHITE);
+		btnSet.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		btnSet.setBorder(null);
+		btnSet.setBackground(new Color(51, 102, 255));
+		btnSet.setBounds(927, 110, 89, 35);
+		CustomerInfo.add(btnSet);
+
+		SpecifyCustomerField.setVisible(false);
+		SpecifyCustomerField.setOpaque(false);
+		SpecifyCustomerField.setBounds(261, 0, 321, 46);
+		CustomerInfo.add(SpecifyCustomerField);
+		SpecifyCustomerField.setLayout(null);
+
+		JLabel lblSpecifyFields = new JLabel("Specify Field(s)");
+		lblSpecifyFields.setForeground(Color.RED);
+		lblSpecifyFields.setFont(new Font("SansSerif", Font.PLAIN, 18));
+		lblSpecifyFields.setBounds(0, 0, 133, 43);
+		SpecifyCustomerField.add(lblSpecifyFields);
+
+		final JButton btnOkSpecifyCustomer = new JButton("OK");
+		btnOkSpecifyCustomer.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				SpecifyCustomerField.setVisible(false);
+			}
+		});
+		btnOkSpecifyCustomer.setForeground(Color.WHITE);
+		btnOkSpecifyCustomer.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		btnOkSpecifyCustomer.setBorder(null);
+		btnOkSpecifyCustomer.setBackground(new Color(51, 102, 255));
+		btnOkSpecifyCustomer.setBounds(128, 5, 45, 35);
+		SpecifyCustomerField.add(btnOkSpecifyCustomer);
+
+		JLabel lblQuantity_1 = new JLabel("Quantity");
+		lblQuantity_1.setForeground(SystemColor.textHighlight);
+		lblQuantity_1.setFont(new Font("SansSerif", Font.PLAIN, 18));
+		lblQuantity_1.setBounds(395, 51, 193, 29);
+		CustomerInfo.add(lblQuantity_1);
+
+		txtQuantitySale = new JTextField();
+		txtQuantitySale.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent getChar) {
+				char input = getChar.getKeyChar();
+				if(!(Character.isDigit(input)) || (input==KeyEvent.VK_BACK_SPACE) || (input==KeyEvent.VK_DELETE)){
+					getChar.consume();
+				}
+			}
+		});
+		txtQuantitySale.setHorizontalAlignment(SwingConstants.CENTER);
+		txtQuantitySale.setForeground(Color.BLACK);
+		txtQuantitySale.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		txtQuantitySale.setColumns(10);
+		txtQuantitySale.setBorder(new LineBorder(new Color(51, 153, 255)));
+		txtQuantitySale.setBounds(393, 80, 141, 29);
+		CustomerInfo.add(txtQuantitySale);
+
+		JLabel label_8 = new JLabel("Search");
+		label_8.setForeground(SystemColor.textHighlight);
+		label_8.setFont(new Font("SansSerif", Font.PLAIN, 24));
+		label_8.setBounds(20, 116, 79, 29);
+		CustomerInfo.add(label_8);
+
+		txtSearchSaleItem = new JTextField();
+		txtSearchSaleItem.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent arg0) {
+				TestConnection tc = new TestConnection();
+				DatabaseManager dm = new DatabaseManager();
+				DefaultTableModel model = (DefaultTableModel)tblSalesItem.getModel();
+				model.getDataVector().removeAllElements();
+				tblSalesItem.updateUI();
+
+				search = txtSearchSaleItem.getText().toString();
+
+				try {
+					ResultSet rs = dm.searchItem(tc.getConnection(), search);
+					while(rs.next()){
+						String itemCode = rs.getString("ItemCode");
+						String itemName = rs.getString("ItemName");
+						String itemBrand = rs.getString("ItemBrand");
+						String itemColor = rs.getString("ItemColor");
+						String itemStyle = rs.getString("ItemStyle");
+						String itemCategory = rs.getString("ItemCategory");
+						String itemSize = rs.getString("ItemSize");
+						String itemQuantity = rs.getString("ItemQuantity");
+						String srp = rs.getString("SuggestedRetailPrice");
+						String price = rs.getString("Price");
+						model.addRow(new Object[]{itemCode,itemName,itemBrand,itemColor,itemStyle,itemCategory,itemSize,itemQuantity,srp,price});
+					}
+					tblSalesItem.updateUI();
+					rs.close();
+					tc.getConnection().close();
+				} catch (ClassNotFoundException | SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+		txtSearchSaleItem.setHorizontalAlignment(SwingConstants.CENTER);
+		txtSearchSaleItem.setForeground(SystemColor.textHighlight);
+		txtSearchSaleItem.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		txtSearchSaleItem.setColumns(10);
+		txtSearchSaleItem.setBorder(new LineBorder(new Color(51, 153, 255)));
+		txtSearchSaleItem.setBounds(98, 116, 272, 29);
+		CustomerInfo.add(txtSearchSaleItem);
+
+		JScrollPane scrollPaneSaleItem = new JScrollPane();
+		scrollPaneSaleItem.setBounds(0, 157, 1026, 486);
+		pnlSaleTab.add(scrollPaneSaleItem);
+
+		tblSalesItem = new JTable();
+		tblSalesItem.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		tblSalesItem.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				get = getSelectedSalesItem();
+			}
+		});
+		tblSalesItem.setRowHeight(35);
+		tblSalesItem.setModel(new DefaultTableModel(
+			new Object[][] {
+			},
+			new String[] {
+				"Code", "Name", "Brand", "Color", "Style", "Category", "Size", "Quantity", "Price"
+			}
+		) {
+			boolean[] columnEditables = new boolean[] {
+				false, false, false, false, false, false, false, true, false
+			};
+			public boolean isCellEditable(int row, int column) {
+				return columnEditables[column];
+			}
+		});
+		scrollPaneSaleItem.setViewportView(tblSalesItem);
+		pnlSalesReportTab.setBounds(10, 70, 0, 0);
+		pnlSales.add(pnlSalesReportTab);
+		pnlSalesReportTab.setLayout(null);
+
+		JScrollPane scrollPaneSalesReport = new JScrollPane();
+		scrollPaneSalesReport.setBounds(0, 0, 1026, 592);
+		pnlSalesReportTab.add(scrollPaneSalesReport);
+
+		final JButton btnOk_1 = new JButton("OK");
+		btnOk_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				TestConnection tc = new TestConnection();
+				DatabaseManager dm = new DatabaseManager();
+				Sales s = new Sales();
+				if(tblSalesReport.getSelectedRow()==-1){
+					JOptionPane.showMessageDialog(frmUserWindow,"No Selected Row !");
+				}else{
+					int customerNo = getSales.getSalesNo();
+					String status = "Ok";
+
+					s.setSalesNo(customerNo);
+					s.setStatus(status);
+
+					try {
+						int rs = dm.updateStatus(tc.getConnection(),s);
+						if(rs==1){
+							JOptionPane.showMessageDialog(frmUserWindow,"Meet up is Done !");
+							updateSalesReportTable();
+						}
+					} catch (ClassNotFoundException | SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+		btnOk_1.setVisible(false);
+		JButton btnSaleItem = new JButton("Sale Item");
+		btnSaleItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pnlSaleTab.setBounds(10, 70, 1026, 643);
+				pnlSaleTab.setVisible(true);
+				pnlSalesReportTab.setVisible(false);
+				pnlSalesReportTab.setBounds(10, 70, 0, 0);
+				btnOk_1.setVisible(false);
+			}
+		});
+		btnSaleItem.setBounds(10, 34, 89, 35);
+		btnSaleItem.setForeground(Color.WHITE);
+		btnSaleItem.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		btnSaleItem.setBorder(null);
+		btnSaleItem.setBackground(new Color(51, 102, 255));
+		pnlSales.add(btnSaleItem);
+
+		JButton btnSalesReport = new JButton("Sales Report");
+		btnSalesReport.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pnlSaleTab.setVisible(false);
+				pnlSaleTab.setBounds(10, 70, 0, 0);
+				pnlSalesReportTab.setVisible(true);
+				pnlSalesReportTab.setBounds(10, 70, 1026, 643);
+				btnOk_1.setVisible(true);
+			}
+		});
+		btnSalesReport.setBounds(100, 34, 123, 35);
+		btnSalesReport.setForeground(Color.WHITE);
+		btnSalesReport.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		btnSalesReport.setBorder(null);
+		btnSalesReport.setBackground(new Color(51, 102, 255));
+		pnlSales.add(btnSalesReport);
+
+		tblSalesReport = new JTable();
+		tblSalesReport.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		tblSalesReport.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				getSales = getSelectedSales();
+			}
+		});
+		tblSalesReport.setRowHeight(35);
+		tblSalesReport.setModel(new DefaultTableModel(
+			new Object[][] {
+			},
+			new String[] {
+				"Customer No", "Customer Name", "Contact No", "Item Code", "Item Name", "Price", "Quantity", "Total", "Date/Time", "Status"
+			}
+		) {
+			boolean[] columnEditables = new boolean[] {
+				false, false, false, false, false, false, false, false, false, false
+			};
+			public boolean isCellEditable(int row, int column) {
+				return columnEditables[column];
+			}
+		});
+		scrollPaneSalesReport.setViewportView(tblSalesReport);
+
+		JButton btnPrintSalesReport = new JButton("Print Sales Report");
+		btnPrintSalesReport.setVisible(false);
+		btnPrintSalesReport.setBorder(null);
+		btnPrintSalesReport.setBackground(new Color(0, 51, 255));
+		btnPrintSalesReport.setForeground(Color.WHITE);
+		btnPrintSalesReport.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		btnPrintSalesReport.setBounds(10, 597, 172, 35);
+		pnlSalesReportTab.add(btnPrintSalesReport);
+
+		btnOk_1.setForeground(Color.WHITE);
+		btnOk_1.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		btnOk_1.setBorder(null);
+		btnOk_1.setBackground(new Color(51, 102, 255));
+		btnOk_1.setBounds(987, 34, 49, 35);
+		pnlSales.add(btnOk_1);
+
+
 
 		final JButton btnInventoryManagement = new JButton("");
-		btnInventoryManagement.setRolloverIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/IMActive.png")));
+		btnInventoryManagement.setRolloverIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IMActive.png")));
 		final JButton btnShoesMasterData = new JButton("");
-		btnShoesMasterData.setRolloverIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/IMDActive.png")));
-		final JButton btnUserManagement = new JButton("");
-		btnUserManagement.setRolloverIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/UMActive.png")));
+		btnShoesMasterData.setRolloverIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IMDActive.png")));
 		final JButton btnDelivery = new JButton("");
-		btnDelivery.setRolloverIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/deliveryActive.png")));
+		btnDelivery.setRolloverIcon(new ImageIcon(UserWindow.class.getResource("/app/image/deliveryActive.png")));
 		final JButton btnSales = new JButton("");
-		btnSales.setRolloverIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/SalesActive.png")));
-		final JPanel InventoryManagement = new JPanel();
-		final JPanel ItemMasterData = new JPanel();
-		final JPanel UserManagement = new JPanel();
-		final JPanel Delivery = new JPanel();
-		UserManagement.setVisible(false);
-		ItemMasterData.setVisible(false);
+		btnSales.setRolloverIcon(new ImageIcon(UserWindow.class.getResource("/app/image/SalesActive.png")));
+		final JPanel pnlInventoryManagement = new JPanel();
+		final JPanel pnlItemMasterData = new JPanel();
+		final JPanel pnlDelivery = new JPanel();
+		pnlItemMasterData.setVisible(false);
 		btnInventoryManagement.setBackground(Color.WHITE);
 		btnInventoryManagement.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				InventoryManagement.setVisible(true);
-				InventoryManagement.setBounds(310, 33, 1046, 724);
-				ItemMasterData.setVisible(false);
-				UserManagement.setVisible(false);
-				Delivery.setVisible(false);
-				Sales.setVisible(false);
-				btnInventoryManagement.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/IMActive.png")));
-				btnShoesMasterData.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/IMD.png")));
-				btnUserManagement.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/UM.png")));
-				btnDelivery.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/delivery.png")));
-				btnSales.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/Sales.png")));
+				pnlInventoryManagement.setVisible(true);
+				pnlInventoryManagement.setBounds(310, 33, 1046, 724);
+				pnlItemMasterData.setVisible(false);
+				pnlDelivery.setVisible(false);
+				pnlSales.setVisible(false);
+				btnInventoryManagement.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IMActive.png")));
+				btnShoesMasterData.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IMD.png")));
+				btnDelivery.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/delivery.png")));
+				btnSales.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/Sales.png")));
 			}
 		});
-		btnInventoryManagement.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/IM.png")));
+		btnInventoryManagement.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IM.png")));
 		btnInventoryManagement.setBorder(null);
 		btnInventoryManagement.setBounds(0, 129, 300, 100);
-		sideBar.add(btnInventoryManagement);
+		pnlSideBar.add(btnInventoryManagement);
 
 		btnShoesMasterData.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0){
-				InventoryManagement.setVisible(false);
-				ItemMasterData.setVisible(true);
-				UserManagement.setVisible(false);
-				Delivery.setVisible(false);
-				Sales.setVisible(false);
-				ItemMasterData.setBounds(310, 33, 1046, 724);
-				btnShoesMasterData.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/IMDActive.png")));
-				btnInventoryManagement.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/IM.png")));
-				btnUserManagement.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/UM.png")));
-				btnDelivery.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/delivery.png")));
-				btnSales.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/Sales.png")));
+				pnlInventoryManagement.setVisible(false);
+				pnlItemMasterData.setVisible(true);
+				pnlDelivery.setVisible(false);
+				pnlSales.setVisible(false);
+				pnlItemMasterData.setBounds(310, 33, 1046, 724);
+				btnShoesMasterData.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IMDActive.png")));
+				btnInventoryManagement.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IM.png")));
+				btnDelivery.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/delivery.png")));
+				btnSales.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/Sales.png")));
 			}
 		});
-		btnShoesMasterData.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/IMD.png")));
+		btnShoesMasterData.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IMD.png")));
 		btnShoesMasterData.setBorder(null);
 		btnShoesMasterData.setBounds(0, 252, 300, 100);
-		sideBar.add(btnShoesMasterData);
-
-		btnUserManagement.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				InventoryManagement.setVisible(false);
-				ItemMasterData.setVisible(false);
-				UserManagement.setVisible(true);
-				Delivery.setVisible(false);
-				Sales.setVisible(false);
-				UserManagement.setBounds(310, 33, 1046, 724);
-				btnUserManagement.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/UMActive.png")));
-				btnDelivery.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/delivery.png")));
-				btnInventoryManagement.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/IM.png")));
-				btnShoesMasterData.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/IMD.png")));
-				btnSales.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/Sales.png")));
-
-			}
-		});
-		btnUserManagement.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/UM.png")));
-		btnUserManagement.setBorder(null);
-		btnUserManagement.setBounds(0, 374, 300, 100);
-		sideBar.add(btnUserManagement);
+		pnlSideBar.add(btnShoesMasterData);
 
 		btnDelivery.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				InventoryManagement.setVisible(false);
-				ItemMasterData.setVisible(false);
-				UserManagement.setVisible(false);
-				Delivery.setVisible(true);
-				Sales.setVisible(false);
-				Delivery.setBounds(310, 33, 1046, 724);
-				btnDelivery.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/deliveryActive.png")));
-				btnInventoryManagement.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/IM.png")));
-				btnShoesMasterData.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/IMD.png")));
-				btnUserManagement.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/UM.png")));
-				btnSales.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/Sales.png")));
+				pnlInventoryManagement.setVisible(false);
+				pnlItemMasterData.setVisible(false);
+				pnlDelivery.setVisible(true);
+				pnlSales.setVisible(false);
+				pnlDelivery.setBounds(310, 33, 1046, 724);
+				btnDelivery.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/deliveryActive.png")));
+				btnInventoryManagement.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IM.png")));
+				btnShoesMasterData.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IMD.png")));
+				btnSales.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/Sales.png")));
 			}
 		});
-		btnDelivery.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/delivery.png")));
+		btnDelivery.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/delivery.png")));
 		btnDelivery.setBorder(null);
-		btnDelivery.setBounds(0, 495, 300, 100);
-		sideBar.add(btnDelivery);
-		
+		btnDelivery.setBounds(0, 373, 300, 100);
+		pnlSideBar.add(btnDelivery);
+
 		btnSales.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				Sales.setVisible(true);
-				InventoryManagement.setVisible(false);
-				ItemMasterData.setVisible(false);
-				UserManagement.setVisible(false);
-				Delivery.setVisible(false);
-				btnSales.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/SalesActive.png")));
-				btnInventoryManagement.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/IM.png")));
-				btnShoesMasterData.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/IMD.png")));
-				btnUserManagement.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/UM.png")));
-				btnDelivery.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/delivery.png")));
+				pnlSales.setVisible(true);
+				pnlSaleTab.setVisible(true);
+				pnlSales.setBounds(310,33,1046,724);
+				pnlInventoryManagement.setVisible(false);
+				pnlItemMasterData.setVisible(false);
+				pnlDelivery.setVisible(false);
+				btnSales.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/SalesActive.png")));
+				btnInventoryManagement.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IM.png")));
+				btnShoesMasterData.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IMD.png")));
+				btnDelivery.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/delivery.png")));
 			}
 		});
-		btnSales.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/Sales.png")));
+		btnSales.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/Sales.png")));
 		btnSales.setBorder(null);
-		btnSales.setBounds(0, 614, 300, 100);
-		sideBar.add(btnSales);
+		btnSales.setBounds(0, 492, 300, 100);
+		pnlSideBar.add(btnSales);
 
 
 		JLabel lblClock = new JLabel("");
@@ -402,41 +765,78 @@ public class SuperUserWindow {
 		lblClock.setForeground(Color.WHITE);
 		lblClock.setFont(new Font("SansSerif", Font.BOLD, 15));
 		lblClock.setBounds(147, 29, 143, 23);
-		sideBar.add(lblClock);
+		pnlSideBar.add(lblClock);
+		
+		final JPanel panel = new JPanel();
+		panel.setBorder(new LineBorder(new Color(51, 153, 255), 2));
+		panel.setBackground(new Color(255, 255, 255));
+		panel.setVisible(false);
+		panel.setBounds(10, 52, 280, 55);
+		pnlSideBar.add(panel);
+		panel.setLayout(null);
 
 		JButton btnLogout = new JButton("Logout");
 		btnLogout.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(JOptionPane.showConfirmDialog(frmSuperUser, "Are you sure you want to Logout ?","PROMPT",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)==0){
-					LoginWindow l = new LoginWindow();
-					l.frmLogin.setVisible(true);
-					frmSuperUser.dispose();
-				}
+				panel.setVisible(true);
 			}
 		});
+		JLabel lblConfirm = new JLabel("Confirm !");
+		lblConfirm.setForeground(new Color(51, 153, 255));
+		lblConfirm.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		lblConfirm.setBounds(10, 11, 89, 23);
+		panel.add(lblConfirm);
+		
+		JButton btnYes = new JButton("Yes");
+		btnYes.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				LoginWindow l = new LoginWindow();
+				l.frmLogin.setVisible(true);
+				frmUserWindow.dispose();
+			}
+		});
+		btnYes.setForeground(Color.WHITE);
+		btnYes.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		btnYes.setBorder(null);
+		btnYes.setBackground(new Color(51, 102, 255));
+		btnYes.setBounds(90, 11, 81, 23);
+		panel.add(btnYes);
+		
+		JButton btnNo = new JButton("No");
+		btnNo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				panel.setVisible(false);
+			}
+		});
+		btnNo.setForeground(Color.WHITE);
+		btnNo.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		btnNo.setBorder(null);
+		btnNo.setBackground(new Color(51, 102, 255));
+		btnNo.setBounds(181, 11, 81, 23);
+		panel.add(btnNo);
 		btnLogout.setBorder(null);
 		btnLogout.setBackground(new Color(51, 102, 255));
 		btnLogout.setForeground(Color.WHITE);
 		btnLogout.setFont(new Font("SansSerif", Font.PLAIN, 12));
 		btnLogout.setBounds(10, 29, 89, 23);
-		sideBar.add(btnLogout);
+		pnlSideBar.add(btnLogout);
 
 		JLabel lblModule = new JLabel("Modules");
 		lblModule.setHorizontalAlignment(SwingConstants.CENTER);
 		lblModule.setForeground(new Color(255, 255, 255));
 		lblModule.setFont(new Font("SansSerif", Font.PLAIN, 22));
 		lblModule.setBounds(0, 63, 300, 55);
-		sideBar.add(lblModule);
+		pnlSideBar.add(lblModule);
 
 		JButton btnchangePassword = new JButton("*Change Password");
 		btnchangePassword.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				SuperuserChangePassword scp = new SuperuserChangePassword();
+				ChangePassword scp = new ChangePassword();
 				scp.setVisible(true);
 				scp.setLocationRelativeTo(null);
 				scp.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 				scp.setAlwaysOnTop(true);
-				frmSuperUser.setFocusable(false);
+				frmUserWindow.setFocusable(false);
 
 			}
 		});
@@ -447,26 +847,26 @@ public class SuperUserWindow {
 		btnchangePassword.setBorder(null);
 		btnchangePassword.setBackground(new Color(51, 102, 255));
 		btnchangePassword.setBounds(0, 745, 120, 23);
-		sideBar.add(btnchangePassword);
+		pnlSideBar.add(btnchangePassword);
 
 		JLabel sideBarBG = new JLabel("");
-		sideBarBG.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/sidebar.png")));
+		sideBarBG.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/sidebar.png")));
 		sideBarBG.setBounds(0, 0, 300, 768);
-		sideBar.add(sideBarBG);
+		pnlSideBar.add(sideBarBG);
 
-		InventoryManagement.setVisible(false);
-		InventoryManagement.setBackground(new Color(255, 255, 255));
-		InventoryManagement.setBorder(new LineBorder(new Color(51, 153, 255)));
-		InventoryManagement.setBounds(310, 33, 0, 0);
-		frmSuperUser.getContentPane().add(InventoryManagement);
-		InventoryManagement.setLayout(null);
+		pnlInventoryManagement.setVisible(false);
+		pnlInventoryManagement.setBackground(new Color(255, 255, 255));
+		pnlInventoryManagement.setBorder(new LineBorder(new Color(51, 153, 255)));
+		pnlInventoryManagement.setBounds(310, 33, 1046, 724);
+		frmUserWindow.getContentPane().add(pnlInventoryManagement);
+		pnlInventoryManagement.setLayout(null);
 
 		JButton btnCloseIM = new JButton("X");
 		btnCloseIM.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(JOptionPane.showConfirmDialog(frmSuperUser, "Are you sure you want to close ?","PROMPT",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)==0){
-					InventoryManagement.setVisible(false);
-					btnInventoryManagement.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/IM.png")));
+				if(JOptionPane.showConfirmDialog(frmUserWindow, "Are you sure you want to close ?","PROMPT",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)==0){
+					pnlInventoryManagement.setVisible(false);
+					btnInventoryManagement.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IM.png")));
 				}
 
 			}
@@ -476,24 +876,24 @@ public class SuperUserWindow {
 		btnCloseIM.setBorder(null);
 		btnCloseIM.setBackground(new Color(0, 51, 255));
 		btnCloseIM.setBounds(1009, 0, 37, 23);
-		InventoryManagement.add(btnCloseIM);
+		pnlInventoryManagement.add(btnCloseIM);
 
 		JLabel lblInventoryManagement = new JLabel("Inventory Management");
 		lblInventoryManagement.setForeground(Color.WHITE);
 		lblInventoryManagement.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		lblInventoryManagement.setBounds(10, 0, 162, 23);
-		InventoryManagement.add(lblInventoryManagement);
+		pnlInventoryManagement.add(lblInventoryManagement);
 
 		JLabel label = new JLabel("");
-		label.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/title.png")));
+		label.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/title.png")));
 		label.setBounds(0, 0, 1046, 23);
-		InventoryManagement.add(label);
+		pnlInventoryManagement.add(label);
 
 		final JPanel SuccessDelete = new JPanel();
 		SuccessDelete.setVisible(false);
 		SuccessDelete.setOpaque(false);
 		SuccessDelete.setBounds(370, 22, 320, 48);
-		InventoryManagement.add(SuccessDelete);
+		pnlInventoryManagement.add(SuccessDelete);
 		SuccessDelete.setLayout(null);
 
 		JLabel lblSuccessfullyDeleted = new JLabel("Successfully Deleted !");
@@ -520,7 +920,7 @@ public class SuperUserWindow {
 		scrollPaneItems.setBackground(new Color(255, 255, 255));
 		scrollPaneItems.setBorder(new LineBorder(new Color(51, 153, 255), 2));
 		scrollPaneItems.setBounds(10, 72, 1026, 597);
-		InventoryManagement.add(scrollPaneItems);
+		pnlInventoryManagement.add(scrollPaneItems);
 
 		tblItems = new JTable();
 		tblItems.setRowHeight(35);
@@ -552,10 +952,11 @@ public class SuperUserWindow {
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				AddItem ai = new AddItem(get);
+				ai.setLocationRelativeTo(null);
 				ai.setVisible(true);
 				ai.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 				ai.setAlwaysOnTop(true);
-				frmSuperUser.setFocusable(false);
+				frmUserWindow.setFocusable(false);
 
 
 			}
@@ -565,7 +966,7 @@ public class SuperUserWindow {
 		btnAdd.setBackground(new Color(51, 102, 255));
 		btnAdd.setBorder(null);
 		btnAdd.setBounds(10, 678, 89, 35);
-		InventoryManagement.add(btnAdd);
+		pnlInventoryManagement.add(btnAdd);
 
 		final JPanel Warning = new JPanel();
 		JButton btnEdit = new JButton("Edit");
@@ -579,9 +980,10 @@ public class SuperUserWindow {
 						tblItems.setEnabled(true);
 						EditItem ei = new EditItem(getSelectedItem());
 						ei.setVisible(true);
+						ei.setLocationRelativeTo(null);
 						ei.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 						ei.setAlwaysOnTop(true);
-						frmSuperUser.setFocusable(false);
+						frmUserWindow.setFocusable(false);
 					}catch(ArrayIndexOutOfBoundsException aio){
 						Warning.setVisible(true);
 					}
@@ -596,7 +998,7 @@ public class SuperUserWindow {
 		btnEdit.setBorder(null);
 		btnEdit.setBackground(new Color(51, 102, 255));
 		btnEdit.setBounds(109, 678, 89, 35);
-		InventoryManagement.add(btnEdit);
+		pnlInventoryManagement.add(btnEdit);
 
 		JButton btnDelete = new JButton("Delete");
 		btnDelete.addActionListener(new ActionListener() {
@@ -605,7 +1007,7 @@ public class SuperUserWindow {
 					Warning.setVisible(true);
 				}else{
 					try{
-						if(JOptionPane.showConfirmDialog(frmSuperUser, "Are you sure you want to delete?\n\n*This item will go to Delete Logs\n\n(Item Master Data/Delete Logs tab)","PROMPT",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)==0){
+						if(JOptionPane.showConfirmDialog(frmUserWindow, "Are you sure you want to delete?\n\n*This item will go to Delete Logs\n\n(Item Master Data/Delete Logs tab)","PROMPT",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)==0){
 							Warning.setVisible(false);
 							TestConnection tc = new TestConnection();
 							DatabaseManager dm = new DatabaseManager();
@@ -634,10 +1036,10 @@ public class SuperUserWindow {
 
 
 							DefaultTableModel model = (DefaultTableModel) tblItems.getModel();
-							
+
 							code = (model.getValueAt(tblItems.getSelectedRow(), 0).toString());
-							
-							
+
+
 							try {
 								int rs = dm.insertDeleteLogs(tc.getConnection(), dl);
 								int rs2 = dm.deleteItem(tc.getConnection(), code);
@@ -652,7 +1054,7 @@ public class SuperUserWindow {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
-							
+
 							updateItemTable();
 						}
 					}catch(ArrayIndexOutOfBoundsException aoi){
@@ -667,13 +1069,13 @@ public class SuperUserWindow {
 		btnDelete.setBorder(null);
 		btnDelete.setBackground(new Color(51, 102, 255));
 		btnDelete.setBounds(208, 678, 89, 35);
-		InventoryManagement.add(btnDelete);
+		pnlInventoryManagement.add(btnDelete);
 
 		JLabel lblSearch = new JLabel("Search");
 		lblSearch.setForeground(new Color(51, 153, 255));
 		lblSearch.setFont(new Font("SansSerif", Font.PLAIN, 24));
 		lblSearch.setBounds(10, 34, 79, 29);
-		InventoryManagement.add(lblSearch);
+		pnlInventoryManagement.add(lblSearch);
 
 		txtSearchItem = new JTextField();
 		txtSearchItem.addKeyListener(new KeyAdapter() {
@@ -694,10 +1096,13 @@ public class SuperUserWindow {
 						String itemName = rs.getString("ItemName");
 						String itemBrand = rs.getString("ItemBrand");
 						String itemColor = rs.getString("ItemColor");
+						String itemStyle = rs.getString("ItemStyle");
+						String itemCategory = rs.getString("ItemCategory");
 						String itemSize = rs.getString("ItemSize");
 						String itemQuantity = rs.getString("ItemQuantity");
+						String srp = rs.getString("SuggestedRetailPrice");
 						String price = rs.getString("Price");
-						model.addRow(new Object[]{itemCode,itemName,itemBrand,itemColor,itemSize,itemQuantity,price});
+						model.addRow(new Object[]{itemCode,itemName,itemBrand,itemColor,itemStyle,itemCategory,itemSize,itemQuantity,srp,price});
 					}
 					tblItems.updateUI();
 					rs.close();
@@ -716,14 +1121,14 @@ public class SuperUserWindow {
 		txtSearchItem.setHorizontalAlignment(SwingConstants.CENTER);
 		txtSearchItem.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		txtSearchItem.setBounds(88, 34, 272, 29);
-		InventoryManagement.add(txtSearchItem);
+		pnlInventoryManagement.add(txtSearchItem);
 		txtSearchItem.setColumns(10);
 
 		Warning.setVisible(false);
 		Warning.setOpaque(false);
 		Warning.setAutoscrolls(true);
 		Warning.setBounds(307, 674, 213, 41);
-		InventoryManagement.add(Warning);
+		pnlInventoryManagement.add(Warning);
 		Warning.setLayout(null);
 
 		JLabel lblWarning = new JLabel("Select Item to Proceed !");
@@ -750,9 +1155,11 @@ public class SuperUserWindow {
 			public void actionPerformed(ActionEvent e) {
 				AddBrand ab = new AddBrand(null);
 				ab.setVisible(true);
+				ab.setLocationRelativeTo(null);
 				ab.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 				ab.setAlwaysOnTop(true);
-				frmSuperUser.setFocusable(false);
+				frmUserWindow.setFocusable(false);
+
 			}
 		});
 		btnAddBrand.setForeground(Color.WHITE);
@@ -760,20 +1167,28 @@ public class SuperUserWindow {
 		btnAddBrand.setBorder(null);
 		btnAddBrand.setBackground(new Color(51, 102, 255));
 		btnAddBrand.setBounds(947, 680, 89, 35);
-		InventoryManagement.add(btnAddBrand);
+		pnlInventoryManagement.add(btnAddBrand);
+		
+		JButton btnAddColor = new JButton("Add Color");
+		btnAddColor.setForeground(Color.WHITE);
+		btnAddColor.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		btnAddColor.setBorder(null);
+		btnAddColor.setBackground(new Color(51, 102, 255));
+		btnAddColor.setBounds(848, 680, 89, 35);
+		pnlInventoryManagement.add(btnAddColor);
 
-		ItemMasterData.setBorder(new LineBorder(new Color(51, 153, 255)));
-		ItemMasterData.setBackground(new Color(255, 255, 255));
-		ItemMasterData.setBounds(310, 33, 0, 0);
-		frmSuperUser.getContentPane().add(ItemMasterData);
-		ItemMasterData.setLayout(null);
+		pnlItemMasterData.setBorder(new LineBorder(new Color(51, 153, 255)));
+		pnlItemMasterData.setBackground(new Color(255, 255, 255));
+		pnlItemMasterData.setBounds(310, 33, 0, 0);
+		frmUserWindow.getContentPane().add(pnlItemMasterData);
+		pnlItemMasterData.setLayout(null);
 
 		JButton btmCloseIMD = new JButton("X");
 		btmCloseIMD.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(JOptionPane.showConfirmDialog(frmSuperUser, "Are you sure you want to close ?","PROMPT",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)==0){
-					ItemMasterData.setVisible(false);
-					btnShoesMasterData.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/IMD.png")));
+				if(JOptionPane.showConfirmDialog(frmUserWindow, "Are you sure you want to close ?","PROMPT",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)==0){
+					pnlItemMasterData.setVisible(false);
+					btnShoesMasterData.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/IMD.png")));
 				}
 
 
@@ -784,24 +1199,24 @@ public class SuperUserWindow {
 		btmCloseIMD.setBorder(null);
 		btmCloseIMD.setBackground(new Color(0, 51, 255));
 		btmCloseIMD.setBounds(1009, 0, 37, 23);
-		ItemMasterData.add(btmCloseIMD);
+		pnlItemMasterData.add(btmCloseIMD);
 
 		JLabel lblItemMasterData = new JLabel("Item Master Data");
 		lblItemMasterData.setForeground(Color.WHITE);
 		lblItemMasterData.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		lblItemMasterData.setBounds(10, 0, 162, 23);
-		ItemMasterData.add(lblItemMasterData);
+		pnlItemMasterData.add(lblItemMasterData);
 
 		JLabel label_1 = new JLabel("");
-		label_1.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/title.png")));
+		label_1.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/title.png")));
 		label_1.setBounds(0, 0, 1046, 23);
-		ItemMasterData.add(label_1);
+		pnlItemMasterData.add(label_1);
 
 		JLabel label_2 = new JLabel("Search");
 		label_2.setForeground(SystemColor.textHighlight);
 		label_2.setFont(new Font("SansSerif", Font.PLAIN, 24));
 		label_2.setBounds(10, 34, 79, 29);
-		ItemMasterData.add(label_2);
+		pnlItemMasterData.add(label_2);
 
 		txtSearchData = new JTextField();
 		txtSearchData.addKeyListener(new KeyAdapter() {
@@ -822,10 +1237,13 @@ public class SuperUserWindow {
 						String itemName = rs.getString("ItemName");
 						String itemBrand = rs.getString("ItemBrand");
 						String itemColor = rs.getString("ItemColor");
+						String itemStyle = rs.getString("ItemStyle");
+						String itemCategory = rs.getString("ItemCategory");
 						String itemSize = rs.getString("ItemSize");
 						String itemQuantity = rs.getString("ItemQuantity");
+						String srp = rs.getString("SuggestedRetailPrice");
 						String price = rs.getString("Price");
-						model.addRow(new Object[]{itemCode,itemName,itemBrand,itemColor,itemSize,itemQuantity,price});
+						model.addRow(new Object[]{itemCode,itemName,itemBrand,itemColor,itemStyle,itemCategory,itemSize,itemQuantity,srp,price});
 					}
 					tblItemData.updateUI();
 					rs.close();
@@ -842,7 +1260,7 @@ public class SuperUserWindow {
 		txtSearchData.setColumns(10);
 		txtSearchData.setBorder(new LineBorder(new Color(51, 153, 255)));
 		txtSearchData.setBounds(88, 34, 272, 29);
-		ItemMasterData.add(txtSearchData);
+		pnlItemMasterData.add(txtSearchData);
 
 		final JScrollPane scrollPaneItemList = new JScrollPane();
 		scrollPaneItemList.setBorder(new LineBorder(new Color(51, 153, 255), 2));
@@ -850,7 +1268,7 @@ public class SuperUserWindow {
 		final JScrollPane scrollPaneDeleteItems = new JScrollPane();
 		scrollPaneDeleteItems.setBorder(new LineBorder(new Color(51, 153, 255), 2));
 		scrollPaneDeleteItems.setBounds(10, 112, 0, 0);
-		ItemMasterData.add(scrollPaneDeleteItems);
+		pnlItemMasterData.add(scrollPaneDeleteItems);
 
 		tblDeleted = new JTable();
 		tblDeleted.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -877,7 +1295,7 @@ public class SuperUserWindow {
 		});
 		scrollPaneDeleteItems.setViewportView(tblDeleted);
 		scrollPaneItemList.setBounds(10, 112, 1026, 566);
-		ItemMasterData.add(scrollPaneItemList);
+		pnlItemMasterData.add(scrollPaneItemList);
 
 		tblItemData = new JTable();
 		tblItemData.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -904,7 +1322,7 @@ public class SuperUserWindow {
 		btnRetreiveItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(tblDeleted.getSelectedRow()==-1){
-					JOptionPane.showMessageDialog(frmSuperUser, "Select item to retreive !");
+					JOptionPane.showMessageDialog(frmUserWindow, "Select item to retreive !");
 				}else{
 					TestConnection tc = new TestConnection();
 					DatabaseManager dm = new DatabaseManager();
@@ -938,7 +1356,7 @@ public class SuperUserWindow {
 						if(rs==1){
 							updateItemTable();
 							updateDeleteLogsTable();
-							JOptionPane.showMessageDialog(frmSuperUser, "Successfully Retreive !");
+							JOptionPane.showMessageDialog(frmUserWindow, "Successfully Retreive !");
 						}
 						if(rs2==1){
 							updateDeleteLogsTable();
@@ -965,7 +1383,7 @@ public class SuperUserWindow {
 		btnItemList.setBorder(null);
 		btnItemList.setBackground(new Color(51, 102, 255));
 		btnItemList.setBounds(20, 76, 89, 35);
-		ItemMasterData.add(btnItemList);
+		pnlItemMasterData.add(btnItemList);
 
 		btnDeletedItems.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -980,7 +1398,7 @@ public class SuperUserWindow {
 		btnDeletedItems.setBorder(null);
 		btnDeletedItems.setBackground(new Color(51, 102, 255));
 		btnDeletedItems.setBounds(110, 76, 111, 35);
-		ItemMasterData.add(btnDeletedItems);
+		pnlItemMasterData.add(btnDeletedItems);
 
 		btnRetreiveItem.setVisible(false);
 		btnRetreiveItem.setForeground(Color.WHITE);
@@ -988,262 +1406,21 @@ public class SuperUserWindow {
 		btnRetreiveItem.setBorder(null);
 		btnRetreiveItem.setBackground(new Color(51, 102, 255));
 		btnRetreiveItem.setBounds(925, 684, 111, 35);
-		ItemMasterData.add(btnRetreiveItem);
+		pnlItemMasterData.add(btnRetreiveItem);
 
-		UserManagement.setBorder(new LineBorder(new Color(51, 153, 255)));
-		UserManagement.setBackground(Color.WHITE);
-		UserManagement.setBounds(310, 33, 0, 0);
-		frmSuperUser.getContentPane().add(UserManagement);
-		UserManagement.setLayout(null);
-
-		JButton btnCloseUM = new JButton("X");
-		btnCloseUM.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(JOptionPane.showConfirmDialog(frmSuperUser, "Are you sure you want to close ?","PROMPT",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)==0){
-					UserManagement.setVisible(false);
-					btnUserManagement.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/UM.png")));
-				}
-			}
-		});
-		btnCloseUM.setForeground(Color.WHITE);
-		btnCloseUM.setFont(new Font("SansSerif", Font.BOLD, 11));
-		btnCloseUM.setBorder(null);
-		btnCloseUM.setBackground(new Color(0, 51, 255));
-		btnCloseUM.setBounds(1009, 0, 37, 23);
-		UserManagement.add(btnCloseUM);
-
-		JLabel lblUserManagement = new JLabel("User Management");
-		lblUserManagement.setForeground(Color.WHITE);
-		lblUserManagement.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		lblUserManagement.setBounds(10, 0, 162, 23);
-		UserManagement.add(lblUserManagement);
-
-		JLabel label_3 = new JLabel("");
-		label_3.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/title.png")));
-		label_3.setBounds(0, 0, 1046, 23);
-		UserManagement.add(label_3);
-
-		JLabel label_4 = new JLabel("Search");
-		label_4.setForeground(SystemColor.textHighlight);
-		label_4.setFont(new Font("SansSerif", Font.PLAIN, 24));
-		label_4.setBounds(10, 34, 79, 29);
-		UserManagement.add(label_4);
-
-		txtSearchUser = new JTextField();
-		txtSearchUser.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyTyped(KeyEvent arg0) {
-				TestConnection tc = new TestConnection();
-				DatabaseManager dm = new DatabaseManager();
-				DefaultTableModel modelUser = (DefaultTableModel)tblUser.getModel();
-				modelUser.getDataVector().removeAllElements();
-				tblUser.updateUI();
-
-				id = txtSearchUser.getText().toString();
-				try {
-					ResultSet rs = dm.searchUser(tc.getConnection(), id);
-					while(rs.next()){
-						String id = rs.getString("adminID");
-						String username = rs.getString("username");
-						String password = rs.getString("password");
-						String name = rs.getString("Name");
-						String contact = rs.getString("ContactNumber");
-						String pin = rs.getString("PinCode");
-						modelUser.addRow(new Object[]{id,username,password,name,contact,pin});
-					}
-					rs.close();
-					tc.getConnection().close();
-					tblUser.updateUI();
-				} catch (ClassNotFoundException | SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-
-			}
-		});
-		txtSearchUser.setHorizontalAlignment(SwingConstants.CENTER);
-		txtSearchUser.setForeground(SystemColor.textHighlight);
-		txtSearchUser.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		txtSearchUser.setColumns(10);
-		txtSearchUser.setBorder(new LineBorder(new Color(51, 153, 255)));
-		txtSearchUser.setBounds(88, 34, 272, 29);
-		UserManagement.add(txtSearchUser);
-
-		JScrollPane scrollPaneUser = new JScrollPane();
-		scrollPaneUser.setBorder(new LineBorder(new Color(51, 153, 255), 2));
-		scrollPaneUser.setBounds(10, 72, 1026, 587);
-		UserManagement.add(scrollPaneUser);
-
-		tblUser = new JTable();
-		tblUser.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		tblUser.setRowHeight(35);
-		tblUser.setModel(new DefaultTableModel(
-			new Object[][] {
-			},
-			new String[] {
-				"User ID", "Username", "Password", "Name", "Contact Number", "Pin Code"
-			}
-		) {
-			boolean[] columnEditables = new boolean[] {
-				false, false, false, false, false, false
-			};
-			public boolean isCellEditable(int row, int column) {
-				return columnEditables[column];
-			}
-		});
-		scrollPaneUser.setViewportView(tblUser);
-
-		JButton btnAddUser = new JButton("Add");
-		btnAddUser.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				AddUser au = new AddUser(null);
-				au.setVisible(true);
-				au.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-				au.setAlwaysOnTop(true);
-				frmSuperUser.setFocusable(false);
-			}
-		});
-		btnAddUser.setForeground(Color.WHITE);
-		btnAddUser.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		btnAddUser.setBorder(null);
-		btnAddUser.setBackground(new Color(51, 102, 255));
-		btnAddUser.setBounds(10, 678, 89, 35);
-		UserManagement.add(btnAddUser);
-
-		JButton btnEditUser = new JButton("Edit");
-		final JPanel WarningUser = new JPanel();
-		btnEditUser.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				if(tblUser.getSelectedRow()==-1){
-					WarningUser.setVisible(true);
-				}else{
-					try{
-						EditUser eu = new EditUser(getSelectedUser());
-						eu.setVisible(true);
-						eu.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-						eu.setAlwaysOnTop(true);
-						frmSuperUser.setFocusable(false);
-					}catch(ArrayIndexOutOfBoundsException e){
-						WarningUser.setVisible(true);
-					}		
-				}
-			}
-		});
-		btnEditUser.setForeground(Color.WHITE);
-		btnEditUser.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		btnEditUser.setBorder(null);
-		btnEditUser.setBackground(new Color(51, 102, 255));
-		btnEditUser.setBounds(109, 678, 89, 35);
-		UserManagement.add(btnEditUser);
-
-		JButton btnDeleteUser = new JButton("Delete");
-		final JPanel SuccessDeleteUser = new JPanel();
-		btnDeleteUser.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				if(tblUser.getSelectedRow()==-1){
-					SuccessDeleteUser.setVisible(false);
-					WarningUser.setVisible(true);
-				}else{
-					try{
-						if(JOptionPane.showConfirmDialog(frmSuperUser, "Are you sure you want to delete?","PROMPT",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)==0){
-							TestConnection tc = new TestConnection();
-							DatabaseManager dm = new DatabaseManager();
-
-
-							DefaultTableModel modelUser = (DefaultTableModel)tblUser.getModel();
-							id = (modelUser.getValueAt(tblUser.getSelectedRow(), 0).toString());
-
-							try {
-								int rs = dm.deleteUser(tc.getConnection(), id);
-								if(rs==1){
-									SuccessDeleteUser.setVisible(true);
-									updateUserTable();
-
-								}
-							} catch (ClassNotFoundException | SQLException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							updateUserTable();
-						}
-					}catch(ArrayIndexOutOfBoundsException aio){
-						SuccessDeleteUser.setVisible(false);
-						WarningUser.setVisible(true);	
-					}
-				}
-			}
-		});
-
-		WarningUser.setVisible(false);
-		WarningUser.setOpaque(false);
-		WarningUser.setBounds(301, 660, 239, 64);
-		UserManagement.add(WarningUser);
-		WarningUser.setLayout(null);
-
-		JLabel lblSelectUserTo = new JLabel("Select User to Proceed !");
-		lblSelectUserTo.setForeground(Color.RED);
-		lblSelectUserTo.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		lblSelectUserTo.setBounds(10, 11, 177, 41);
-		WarningUser.add(lblSelectUserTo);
-
-		JButton button = new JButton("OK");
-		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				WarningUser.setVisible(false);
-			}
-		});
-		button.setForeground(Color.WHITE);
-		button.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		button.setBorder(new LineBorder(new Color(51, 153, 255), 2));
-		button.setBackground(new Color(51, 102, 255));
-		button.setBounds(177, 14, 46, 35);
-		WarningUser.add(button);
-		btnDeleteUser.setForeground(Color.WHITE);
-		btnDeleteUser.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		btnDeleteUser.setBorder(null);
-		btnDeleteUser.setBackground(new Color(51, 102, 255));
-		btnDeleteUser.setBounds(208, 678, 89, 35);
-		UserManagement.add(btnDeleteUser);
-
-		SuccessDeleteUser.setVisible(false);
-		SuccessDeleteUser.setOpaque(false);
-		SuccessDeleteUser.setBounds(370, 22, 239, 48);
-		UserManagement.add(SuccessDeleteUser);
-		SuccessDeleteUser.setLayout(null);
-
-		JLabel label_6 = new JLabel("Successfully Deleted !");
-		label_6.setForeground(new Color(51, 255, 0));
-		label_6.setFont(new Font("SansSerif", Font.PLAIN, 18));
-		label_6.setBounds(0, 0, 211, 48);
-		SuccessDeleteUser.add(label_6);
-
-		JButton button_1 = new JButton("OK");
-		button_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				SuccessDeleteUser.setVisible(false);
-			}
-		});
-		button_1.setForeground(Color.WHITE);
-		button_1.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		button_1.setBorder(null);
-		button_1.setBackground(new Color(51, 102, 255));
-		button_1.setBounds(183, 8, 46, 35);
-		SuccessDeleteUser.add(button_1);
-
-		Delivery.setVisible(false);
-		Delivery.setBackground(new Color(255, 255, 255));
-		Delivery.setBorder(new LineBorder(new Color(51, 153, 255)));
-		Delivery.setBounds(310, 33, 0, 0);
-		frmSuperUser.getContentPane().add(Delivery);
-		Delivery.setLayout(null);
+		pnlDelivery.setVisible(false);
+		pnlDelivery.setBackground(new Color(255, 255, 255));
+		pnlDelivery.setBorder(new LineBorder(new Color(51, 153, 255)));
+		pnlDelivery.setBounds(310, 33, 0, 0);
+		frmUserWindow.getContentPane().add(pnlDelivery);
+		pnlDelivery.setLayout(null);
 
 		JButton btnCloseDelivery = new JButton("X");
 		btnCloseDelivery.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(JOptionPane.showConfirmDialog(frmSuperUser, "Are you sure you want to close ?","PROMPT",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)==0){
-					Delivery.setVisible(false);
-					btnDelivery.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/delivery.png")));
+				if(JOptionPane.showConfirmDialog(frmUserWindow, "Are you sure you want to close ?","PROMPT",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)==0){
+					pnlDelivery.setVisible(false);
+					btnDelivery.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/delivery.png")));
 				}
 			}
 		});
@@ -1252,23 +1429,23 @@ public class SuperUserWindow {
 		btnCloseDelivery.setBorder(null);
 		btnCloseDelivery.setBackground(new Color(0, 51, 255));
 		btnCloseDelivery.setBounds(1009, 0, 37, 23);
-		Delivery.add(btnCloseDelivery);
+		pnlDelivery.add(btnCloseDelivery);
 
 		JLabel lblDelivery = new JLabel("Delivery");
 		lblDelivery.setForeground(Color.WHITE);
 		lblDelivery.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		lblDelivery.setBounds(10, 0, 162, 23);
-		Delivery.add(lblDelivery);
+		pnlDelivery.add(lblDelivery);
 
 		JLabel label_5 = new JLabel("");
-		label_5.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/title.png")));
+		label_5.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/title.png")));
 		label_5.setBounds(0, 0, 1046, 23);
-		Delivery.add(label_5);
+		pnlDelivery.add(label_5);
 
 		JPanel tabDelivery = new JPanel();
 		tabDelivery.setBackground(new Color(255, 255, 255));
 		tabDelivery.setBounds(10, 33, 1026, 680);
-		Delivery.add(tabDelivery);
+		pnlDelivery.add(tabDelivery);
 		tabDelivery.setLayout(null);
 
 		final JPanel DeliveryTab = new JPanel();
@@ -1278,6 +1455,7 @@ public class SuperUserWindow {
 		DeliveryTab.setLayout(null);
 
 		final JButton btnPrintDeliveryReport = new JButton("Print Delivery Report");
+		btnPrintDeliveryReport.setVisible(false);
 		btnPrintDeliveryReport.setForeground(Color.WHITE);
 		btnPrintDeliveryReport.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		btnPrintDeliveryReport.setBorder(null);
@@ -1428,7 +1606,7 @@ public class SuperUserWindow {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				try{
-				get = getSelectedDeliverItem();
+					get = getSelectedDeliverItem();
 				}catch(NullPointerException npe){
 					SelectItemtoDeliver.setVisible(true);
 				}
@@ -1457,7 +1635,7 @@ public class SuperUserWindow {
 					SelectItemtoDeliver.setVisible(true);
 				}else{
 					if(txtDeliverTo.getText().equals("") || txtQuantityDeliver.getText().equals("") || txtAddress.getText().equals("")){
-						JOptionPane.showMessageDialog(frmSuperUser, "Specify the Fields !");
+						JOptionPane.showMessageDialog(frmUserWindow, "Specify the Fields !");
 					}else{
 						SelectItemtoDeliver.setVisible(false);
 						scrollPaneDeliveryReports.setVisible(false);
@@ -1475,7 +1653,7 @@ public class SuperUserWindow {
 						int totalPrice = price * deliveredQuantity;
 						int itemsLeft = quantity - deliveredQuantity;
 						if(deliveredQuantity>quantity){
-							JOptionPane.showMessageDialog(frmSuperUser, "Unsufficient Quantity ! !");
+							JOptionPane.showMessageDialog(frmUserWindow, "Unsufficient Quantity ! !");
 						}else{
 							d.setItemCode(code);
 							d.setItemName(name);
@@ -1494,7 +1672,7 @@ public class SuperUserWindow {
 								if(rs==1){
 
 									clearText();
-									JOptionPane.showMessageDialog(frmSuperUser, "Delivery is on Process !");
+									JOptionPane.showMessageDialog(frmUserWindow, "Delivery is on Process !");
 
 									updateDeliverTable();
 									updateItemTable();
@@ -1567,10 +1745,13 @@ public class SuperUserWindow {
 						String itemName = rs.getString("ItemName");
 						String itemBrand = rs.getString("ItemBrand");
 						String itemColor = rs.getString("ItemColor");
+						String itemStyle = rs.getString("ItemStyle");
+						String itemCategory = rs.getString("ItemCategory");
 						String itemSize = rs.getString("ItemSize");
 						String itemQuantity = rs.getString("ItemQuantity");
+						String srp = rs.getString("SuggestedRetailPrice");
 						String price = rs.getString("Price");
-						model.addRow(new Object[]{itemCode,itemName,itemBrand,itemColor,itemSize,itemQuantity,price});
+						model.addRow(new Object[]{itemCode,itemName,itemBrand,itemColor,itemStyle,itemCategory,itemSize,itemQuantity,srp,price});
 					}
 					tblDeliveryItems.updateUI();
 					rs.close();
@@ -1595,36 +1776,39 @@ public class SuperUserWindow {
 		tblDeliveryReports.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tblDeliveryReports.setRowHeight(35);
 		tblDeliveryReports.setModel(new DefaultTableModel(
-			new Object[][] {
-			},
-			new String[] {
-				"Item Code", "Item Name", "Receipient", "Quantity", "TotalPrice", "Address", "Date Delivered"
-			}
-		) {
+				new Object[][] {
+				},
+				new String[] {
+						"Item Code", "Item Name", "Receipient", "Quantity", "TotalPrice", "Address", "Date Delivered"
+				}
+				) {
 			boolean[] columnEditables = new boolean[] {
-				false, false, false, false, false, false, false, false
+					false, false, false, false, false, false, false, false
 			};
 			public boolean isCellEditable(int row, int column) {
 				return columnEditables[column];
 			}
 		});
 		scrollPaneDeliveryReports.setViewportView(tblDeliveryReports);
-		
-		
+
+
 		JLabel shoeThis = new JLabel("");
-		shoeThis.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/ShoeThis.png")));
+		shoeThis.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/ShoeThis.png")));
 		shoeThis.setBounds(445, 237, 800, 300);
-		frmSuperUser.getContentPane().add(shoeThis);
+		frmUserWindow.getContentPane().add(shoeThis);
 
 		JLabel mainBg = new JLabel("");
-		mainBg.setIcon(new ImageIcon(SuperUserWindow.class.getResource("/app/image/bgwhite.png")));
+		mainBg.setIcon(new ImageIcon(UserWindow.class.getResource("/app/image/bgwhite.png")));
 		mainBg.setBounds(0, 0, 1366, 768);
-		frmSuperUser.getContentPane().add(mainBg);
+		frmUserWindow.getContentPane().add(mainBg);
 	}
 	public void clearText(){
 		txtDeliverTo.setText("");;
 		txtAddress.setText("");
-		txtQuantityDeliver.setText("");;
+		txtQuantityDeliver.setText("");
+		txtCustomerName.setText("");
+		txtContactNo.setText("");
+		txtQuantitySale.setText("");
 
 	}
 	public void updateItemTable(){
@@ -1633,13 +1817,16 @@ public class SuperUserWindow {
 		DefaultTableModel modelInventory = (DefaultTableModel)tblItems.getModel();
 		DefaultTableModel modelItemData = (DefaultTableModel)tblItemData.getModel();
 		DefaultTableModel modelDeliver = (DefaultTableModel)tblDeliveryItems.getModel();
+		DefaultTableModel modelSales = (DefaultTableModel)tblSalesItem.getModel();
 		modelDeliver.getDataVector().removeAllElements();
 		modelInventory.getDataVector().removeAllElements();
 		modelItemData.getDataVector().removeAllElements();
+		modelSales.getDataVector().removeAllElements();
 
 		tblItems.updateUI();
 		tblItemData.updateUI();
 		tblDeliveryItems.updateUI();
+		tblSalesItem.updateUI();
 		try {
 			ResultSet rs = dm.inventory(tc.getConnection());
 			while (rs.next()) {
@@ -1656,11 +1843,13 @@ public class SuperUserWindow {
 				modelInventory.addRow(new Object[]{itemCode,itemName,itemBrand,itemColor,itemStyle,itemCategory,itemSize,itemQuantity,price});
 				modelItemData.addRow(new Object[]{itemCode,itemName,itemBrand,itemColor,itemStyle,itemCategory,itemSize,itemQuantity,price});
 				modelDeliver.addRow(new Object[]{itemCode,itemName,itemBrand,itemColor,itemStyle,itemCategory,itemSize,itemQuantity,price});
+				modelSales.addRow(new Object[]{itemCode,itemName,itemBrand,itemColor,itemStyle,itemCategory,itemSize,itemQuantity,price});
 
 			}
 			tblItems.updateUI();
 			tblItemData.updateUI();
 			tblDeliveryItems.updateUI();
+			tblSalesItem.updateUI();
 			rs.close();
 			tc.getConnection().close();
 		} catch (ClassNotFoundException | SQLException e) {
@@ -1699,6 +1888,7 @@ public class SuperUserWindow {
 		}	
 	}
 
+	
 	public void updateDeliverTable(){
 		TestConnection t = new TestConnection();
 		DatabaseManager dm = new DatabaseManager();
@@ -1731,29 +1921,34 @@ public class SuperUserWindow {
 
 		}
 	}
-	public void updateUserTable(){
+	public void updateSalesReportTable(){
 		TestConnection t = new TestConnection();
 		DatabaseManager dm = new DatabaseManager();
-		DefaultTableModel modelUser = (DefaultTableModel)tblUser.getModel();
-		modelUser.getDataVector().removeAllElements();
-		tblUser.updateUI();
+		DefaultTableModel modelSales = (DefaultTableModel)tblSalesReport.getModel();
+		modelSales.getDataVector().removeAllElements();
+		tblSalesReport.updateUI();
 
 		try{
-			ResultSet rs = dm.accountAdmin(t.getConnection());
+			ResultSet rs = dm.sales(t.getConnection());
 			while(rs.next()){
-				String id = rs.getString("adminID");
-				String userName = rs.getString("userName");
-				String password = rs.getString("password");
-				String name = rs.getString("Name");
-				String contact = rs.getString("ContactNumber");
-				String pin = rs.getString("PinCode");
+
+				String customerNo = rs.getString("salesNo");
+				String customerName = rs.getString("customerName");
+				String contactNo = rs.getString("contactNo");
+				String itemCode = rs.getString("ItemCode");
+				String itemName = rs.getString("ItemName");
+				String price = rs.getString("Price");
+				String quantity = rs.getString("Quantity");
+				String total = rs.getString("Total");
+				String dateTime = rs.getString("DateTime");
+				String status = rs.getString("Status");
+				modelSales.addRow(new Object[]{customerNo,customerName,contactNo,itemCode,itemName,price,quantity,total,dateTime,status});
 
 
-				modelUser.addRow(new Object[]{id,userName,password,name,contact,pin});
 
 			}
 
-			tblUser.updateUI();
+			tblSalesReport.updateUI();
 			rs.close();
 			t.getConnection().close();
 
@@ -1761,6 +1956,7 @@ public class SuperUserWindow {
 
 		}
 	}
+
 	public Inventory retrieveItem(){
 		Inventory i = new Inventory();
 		DefaultTableModel modelItems = (DefaultTableModel)tblDeleted.getModel();
@@ -1813,19 +2009,37 @@ public class SuperUserWindow {
 
 		return i;
 	}
-	public User getSelectedUser(){
+	public Inventory getSelectedSalesItem(){
+		Inventory i = new Inventory();
+		DefaultTableModel modelItems = (DefaultTableModel)tblSalesItem.getModel();
 
-		User u = new User();
-		DefaultTableModel modelUser = (DefaultTableModel)tblUser.getModel();
+		i.setItemCode(modelItems.getValueAt(tblSalesItem.getSelectedRow(), 0).toString());
+		i.setItemName(modelItems.getValueAt(tblSalesItem.getSelectedRow(), 1).toString());
+		i.setItemBrand(modelItems.getValueAt(tblSalesItem.getSelectedRow(), 2).toString());
+		i.setItemColor(modelItems.getValueAt(tblSalesItem.getSelectedRow(), 3).toString());
+		i.setItemStyle(modelItems.getValueAt(tblSalesItem.getSelectedRow(), 4).toString());
+		i.setItemCategory(modelItems.getValueAt(tblSalesItem.getSelectedRow(), 5).toString());
+		i.setSize(modelItems.getValueAt(tblSalesItem.getSelectedRow(), 6).toString());
+		i.setQuantityAvailable(Integer.parseInt(modelItems.getValueAt(tblSalesItem.getSelectedRow(), 7).toString()));
+		i.setPrice(Integer.parseInt(modelItems.getValueAt(tblSalesItem.getSelectedRow(), 8).toString()));
 
-		u.setID(modelUser.getValueAt(tblUser.getSelectedRow(),0).toString());
-		u.setUserName(modelUser.getValueAt(tblUser.getSelectedRow(),1).toString());
-		u.setPassword(modelUser.getValueAt(tblUser.getSelectedRow(),2).toString());
-		u.setName(modelUser.getValueAt(tblUser.getSelectedRow(),3).toString());
-		u.setContactNo(modelUser.getValueAt(tblUser.getSelectedRow(),4).toString());
-		u.setPinCode(modelUser.getValueAt(tblUser.getSelectedRow(), 5).toString());
+		return i;
+	}
 
+	public Sales getSelectedSales(){
+		Sales s = new Sales();
+		DefaultTableModel modelSales = (DefaultTableModel)tblSalesReport.getModel();
 
-		return u;
+		s.setSalesNo(Integer.parseInt(modelSales.getValueAt(tblSalesReport.getSelectedRow(), 0).toString()));
+		s.setCustomerName(modelSales.getValueAt(tblSalesReport.getSelectedRow(), 1).toString());
+		s.setContactNumber(modelSales.getValueAt(tblSalesReport.getSelectedRow(), 2).toString());
+		s.setItemCode(modelSales.getValueAt(tblSalesReport.getSelectedRow(), 3).toString());
+		s.setItemName(modelSales.getValueAt(tblSalesReport.getSelectedRow(), 4).toString());
+		s.setPrice(Integer.parseInt(modelSales.getValueAt(tblSalesReport.getSelectedRow(), 5).toString()));
+		s.setQuantity(Integer.parseInt(modelSales.getValueAt(tblSalesReport.getSelectedRow(), 6).toString()));
+		s.setTotal(Integer.parseInt(modelSales.getValueAt(tblSalesReport.getSelectedRow(), 7).toString()));
+		s.setDateTime(modelSales.getValueAt(tblSalesReport.getSelectedRow(), 8).toString());
+		s.setStatus(modelSales.getValueAt(tblSalesReport.getSelectedRow(), 9).toString());
+		return s;
 	}
 }
